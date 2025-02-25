@@ -49,7 +49,7 @@ const PhotographyPortfolio = () => {
       category: "Aerial"
     },
     {
-      src: "https://images.unsplash.com/photo-1523368749929-6b8e38c66ce4",
+      src: "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
       alt: "Fashion model on urban street",
       title: "Urban Fashion",
       category: "Fashion"
@@ -73,16 +73,16 @@ const PhotographyPortfolio = () => {
       <PortfolioHero
         title="Capturing Moments in Time"
         subtitle="Photography is the art of freezing emotions and stories into timeless frames."
-        backgroundImage="https://images.unsplash.com/photo-1542038784456-1ea8e935640e"
+        backgroundImage="https://images.unsplash.com/photo-1554048612-b6a482bc67e5"
       />
 
       <section className="py-16 md:py-24 px-4">
-        <div className="container max-w-5xl">
+        <div className="container max-w-7xl">
           <h2 className="text-portfolio-text text-3xl font-light mb-2 text-center">Portfolio</h2>
           <p className="text-portfolio-muted text-center mb-12 max-w-xl mx-auto">
             A curated selection of my finest work across various photography genres.
           </p>
-          <ImageGallery images={portfolioImages} />
+          <ImageGallery images={portfolioImages} columns={5} />
         </div>
       </section>
 

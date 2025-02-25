@@ -44,7 +44,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   return (
     <div 
       id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className={`group relative overflow-hidden rounded-md transition-all duration-500 ${
+      className={`group relative overflow-hidden rounded-md transition-all duration-500 cursor-pointer ${
         isInView ? "opacity-100" : "opacity-0 translate-y-4"
       }`}
       onClick={onClick}
