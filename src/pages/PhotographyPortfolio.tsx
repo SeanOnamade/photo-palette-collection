@@ -12,10 +12,11 @@ const PhotographyPortfolio = () => {
   }, []);
 
   const portfolioImages = [
+    // Vertical photo
     {
-      src: "https://images.unsplash.com/photo-1500051638674-ff996a0ec29e",
-      alt: "Portrait of a woman in dramatic lighting",
-      title: "Dramatic Portrait",
+      src: "https://images.unsplash.com/photo-1583766395091-2eb9994ed094",
+      alt: "Portrait of a woman with dramatic lighting",
+      title: "Elegance",
       category: "Portrait"
     },
     {
@@ -24,11 +25,12 @@ const PhotographyPortfolio = () => {
       title: "Serenity Valley",
       category: "Landscape"
     },
+    // Vertical photo
     {
-      src: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
-      alt: "City architecture at night",
-      title: "Urban Nightscape",
-      category: "Urban"
+      src: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e",
+      alt: "Fashion portrait in purple lighting",
+      title: "Purple Haze",
+      category: "Fashion"
     },
     {
       src: "https://images.unsplash.com/photo-1468078809804-4c7b3e60a478",
@@ -42,11 +44,44 @@ const PhotographyPortfolio = () => {
       title: "Mountain Majesty",
       category: "Landscape"
     },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1503104834685-7205e8607eb9",
+      alt: "Portrait of a woman with red hair",
+      title: "Flame",
+      category: "Portrait"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5",
+      alt: "City architecture at night",
+      title: "Urban Nightscape",
+      category: "Urban"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1543466835-00a7907e9de1",
+      alt: "Close-up of a dog",
+      title: "Man's Best Friend",
+      category: "Pet"
+    },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1464863979621-258859e62245",
+      alt: "Portrait of a woman in dramatic pose",
+      title: "Strength",
+      category: "Portrait"
+    },
     {
       src: "https://images.unsplash.com/photo-1469594292607-7bd90f8d3ba4",
       alt: "Aerial view of forest and lake",
       title: "Natural Patterns",
       category: "Aerial"
+    },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f",
+      alt: "Fashion model in stylish pose",
+      title: "Haute Couture",
+      category: "Fashion"
     },
     {
       src: "https://images.unsplash.com/photo-1469334031218-e382a71b716b",
@@ -59,6 +94,13 @@ const PhotographyPortfolio = () => {
       alt: "Abstract architectural details",
       title: "Geometric Harmony",
       category: "Abstract"
+    },
+    // Vertical cat photo
+    {
+      src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba",
+      alt: "Close-up of a cat with green eyes",
+      title: "Whiskers",
+      category: "Pet"
     },
     {
       src: "https://images.unsplash.com/photo-1519682577862-22b62b24e493",

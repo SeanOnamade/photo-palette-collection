@@ -22,9 +22,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
         }
       },
       { 
-        // Lower threshold to trigger earlier (0.01 instead of 0.1)
         threshold: 0.01,
-        // Adding rootMargin to load images before they enter the viewport
         rootMargin: "300px"
       }
     );
@@ -49,7 +47,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       }`}
       onClick={onClick}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden">
         <div 
           className={`absolute inset-0 bg-gray-100 ${isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         />
