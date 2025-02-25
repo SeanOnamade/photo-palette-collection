@@ -21,7 +21,12 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { 
+        // Lower threshold to trigger earlier (0.01 instead of 0.1)
+        threshold: 0.01,
+        // Adding rootMargin to load images before they enter the viewport
+        rootMargin: "300px"
+      }
     );
     
     const currentElement = document.getElementById(`image-${src.replace(/[^\w]/g, '-')}`);
