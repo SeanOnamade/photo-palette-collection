@@ -32,10 +32,10 @@ const PortfolioHero = ({
   };
 
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-16 md:py-24 overflow-hidden">
+    <section className="relative min-h-[70vh] flex items-center justify-center px-4 py-16 md:py-24 overflow-hidden bg-portfolio-accent">
       {backgroundImage && (
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-black/30 z-10"></div>
+          <div className="absolute inset-0 bg-black/50 z-10"></div> {/* Darkened overlay for better text contrast */}
           <img
             src={backgroundImage}
             alt="Hero background"
@@ -52,7 +52,7 @@ const PortfolioHero = ({
               : "opacity-0 translate-y-8"
           }`}
         >
-          <h1 className={`text-4xl md:text-5xl lg:text-6xl font-light mb-4 ${backgroundImage ? 'text-white' : 'text-portfolio-text'}`}>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4 text-white">
             {title}
           </h1>
         </div>
@@ -65,7 +65,7 @@ const PortfolioHero = ({
                 : "opacity-0 translate-y-8"
             }`}
           >
-            <p className={`text-lg md:text-xl max-w-xl ${backgroundImage ? 'text-white/90' : 'text-portfolio-muted'}`}>
+            <p className="text-lg md:text-xl max-w-xl text-white/90">
               {subtitle}
             </p>
           </div>
