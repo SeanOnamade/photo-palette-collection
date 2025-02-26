@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Image, Layers, User, Mail, Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
+import { Home, Image, User, Mail, Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarLinkProps {
@@ -9,34 +9,66 @@ interface SidebarLinkProps {
   icon: React.ReactNode;
   label: string;
   collapsed: boolean;
+  isScrollLink?: boolean;
+  onClick?: () => void;
 }
 
-const SidebarLink = ({ href, icon, label, collapsed }: SidebarLinkProps) => (
-  <NavLink
-    to={href}
-    className={({ isActive }) =>
-      cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-        isActive
-          ? "bg-portfolio-accent text-white"
-          : "text-portfolio-text hover:bg-gray-100",
-        collapsed && "justify-center px-2"
-      )
-    }
-  >
-    <div className="flex-shrink-0">{icon}</div>
-    {!collapsed && <span>{label}</span>}
-  </NavLink>
-);
+const SidebarLink = ({ href, icon, label, collapsed, isScrollLink, onClick }: SidebarLinkProps) => {
+  if (isScrollLink) {
+    return (
+      <button
+        onClick={onClick}
+        className={cn(
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all w-full text-left",
+          "text-portfolio-text hover:bg-gray-100 hover:text-portfolio-accent hover:scale-105",
+          collapsed && "justify-center px-2"
+        )}
+      >
+        <div className="flex-shrink-0">{icon}</div>
+        {!collapsed && <span>{label}</span>}
+      </button>
+    );
+  }
+  
+  return (
+    <NavLink
+      to={href}
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+          isActive
+            ? "bg-portfolio-accent text-white"
+            : "text-portfolio-text hover:bg-gray-100 hover:text-portfolio-accent hover:scale-105",
+          collapsed && "justify-center px-2"
+        )
+      }
+    >
+      <div className="flex-shrink-0">{icon}</div>
+      {!collapsed && <span>{label}</span>}
+    </NavLink>
+  );
+};
 
 const PortfolioSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const navigation = [
     { label: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
     { label: "Portfolio", href: "/portfolio", icon: <Image className="h-5 w-5" /> },
-    { label: "Features", href: "/features", icon: <Layers className="h-5 w-5" /> },
-    { label: "About", href: "/about", icon: <User className="h-5 w-5" /> },
+    { 
+      label: "About", 
+      href: "#about", 
+      icon: <User className="h-5 w-5" />,
+      isScrollLink: true,
+      onClick: () => scrollToSection("portfolio-about")
+    },
     { label: "Contact", href: "/contact", icon: <Mail className="h-5 w-5" /> },
   ];
 
@@ -57,7 +89,7 @@ const PortfolioSidebar = () => {
         {!collapsed && <span className="font-medium">Photography</span>}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="rounded-md p-1.5 hover:bg-gray-100"
+          className="rounded-md p-1.5 hover:bg-gray-100 transition-colors"
         >
           {collapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
         </button>
@@ -71,6 +103,8 @@ const PortfolioSidebar = () => {
             icon={item.icon}
             label={item.label}
             collapsed={collapsed}
+            isScrollLink={item.isScrollLink}
+            onClick={item.onClick}
           />
         ))}
       </div>
@@ -83,7 +117,7 @@ const PortfolioSidebar = () => {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-portfolio-text hover:text-portfolio-accent transition-colors p-1.5"
+              className="text-portfolio-text hover:text-portfolio-accent transition-colors p-1.5 hover:scale-110"
             >
               {item.icon}
             </a>
