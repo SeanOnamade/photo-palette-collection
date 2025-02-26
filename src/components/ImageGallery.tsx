@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ImageCard from "./ImageCard";
 
@@ -17,36 +17,63 @@ interface ImageGalleryProps {
 
 const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
+  const [columnCount, setColumnCount] = useState(columns);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
-  const getColumnClass = () => {
-    switch (columns) {
-      case 1:
-        return "grid-cols-1";
-      case 2:
-        return "grid-cols-1 sm:grid-cols-2";
-      case 3:
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-      case 4:
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
-      case 5:
-        return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
-      default:
-        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-    }
+  // Adjust columns based on viewport width
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setColumnCount(1);
+      } else if (width < 768) {
+        setColumnCount(2);
+      } else if (width < 1024) {
+        setColumnCount(3);
+      } else if (width < 1280) {
+        setColumnCount(4);
+      } else {
+        setColumnCount(columns);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [columns]);
+
+  // Organize images into columns for masonry layout
+  const columnizedImages = () => {
+    if (columnCount <= 0) return [];
+    
+    const cols: Image[][] = Array.from({ length: columnCount }, () => []);
+    
+    images.forEach((image, i) => {
+      cols[i % columnCount].push(image);
+    });
+    
+    return cols;
   };
 
   return (
     <>
-      <div className={`grid ${getColumnClass()} gap-4 md:gap-6`}>
-        {images.map((image, index) => (
-          <ImageCard
-            key={`${image.src}-${index}`}
-            src={image.src}
-            alt={image.alt}
-            title={image.title}
-            category={image.category}
-            onClick={() => setSelectedImage(image)}
-          />
+      <div 
+        ref={galleryRef}
+        className="flex gap-1"
+      >
+        {columnizedImages().map((column, columnIndex) => (
+          <div key={`column-${columnIndex}`} className="flex-1 flex flex-col gap-1">
+            {column.map((image, imageIndex) => (
+              <ImageCard
+                key={`${image.src}-${imageIndex}`}
+                src={image.src}
+                alt={image.alt}
+                title={image.title}
+                category={image.category}
+                onClick={() => setSelectedImage(image)}
+              />
+            ))}
+          </div>
         ))}
       </div>
 

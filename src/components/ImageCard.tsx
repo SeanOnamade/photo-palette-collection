@@ -42,19 +42,19 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   return (
     <div 
       id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className={`group relative overflow-hidden rounded-md transition-all duration-500 cursor-pointer ${
+      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 ${
         isInView ? "opacity-100" : "opacity-0 translate-y-4"
       }`}
       onClick={onClick}
     >
-      <div className="relative w-full overflow-hidden">
+      <div className="relative w-full">
         <div 
           className={`absolute inset-0 bg-gray-100 ${isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         />
         <img
           src={src}
           alt={alt}
-          className={`h-full w-full object-cover transition-all duration-700 ${
+          className={`w-full object-cover transition-all duration-700 ${
             isLoaded ? "scale-100 blur-0" : "scale-105 blur-md"
           } group-hover:scale-105`}
           onLoad={() => setIsLoaded(true)}
