@@ -1,9 +1,7 @@
 
-import { Instagram, Mail, Phone } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import PortfolioHero from "@/components/PortfolioHero";
 import ImageGallery from "@/components/ImageGallery";
-import PortfolioContact from "@/components/PortfolioContact";
 import PortfolioSidebar from "@/components/PortfolioSidebar";
 
 // Define the image interface
@@ -216,7 +214,7 @@ const PhotographyPortfolio = () => {
         <section className="py-16 md:py-24 px-4">
           <div className="max-w-[2000px] mx-auto">
             <h2 className="text-portfolio-text text-3xl font-light mb-2 text-center">Portfolio</h2>
-            <p className="text-portfolio-muted text-center mb-6 max-w-xl mx-auto">
+            <p className="text-portfolio-muted text-center mb-8 max-w-xl mx-auto">
               A curated selection of my finest work across various photography genres.
             </p>
             
@@ -249,30 +247,7 @@ const PhotographyPortfolio = () => {
           </div>
         </section>
 
-        <PortfolioContact
-          title="Get in Touch"
-          email="hello@example.com"
-          phone="(123) 456-7890"
-          socialLinks={[
-            {
-              name: "Instagram",
-              url: "https://instagram.com",
-              icon: <Instagram className="w-6 h-6" />
-            },
-            {
-              name: "Email",
-              url: "mailto:hello@example.com",
-              icon: <Mail className="w-6 h-6" />
-            },
-            {
-              name: "Phone",
-              url: "tel:1234567890",
-              icon: <Phone className="w-6 h-6" />
-            }
-          ]}
-        />
-
-        <footer className="py-8 text-center text-portfolio-muted text-sm">
+        <footer className="py-8 text-center text-portfolio-muted text-sm mt-8">
           <div className="container">
             <p>© {new Date().getFullYear()} Photography Portfolio. All rights reserved.</p>
           </div>
