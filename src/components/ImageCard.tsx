@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 
 interface ImageCardProps {
   src: string;
@@ -23,7 +23,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       },
       { 
         threshold: 0.01,
-        rootMargin: "300px"
+        rootMargin: "500px" // Increased for better preloading
       }
     );
     
@@ -39,29 +39,52 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
     };
   }, [src]);
 
+  // Preload the image with a small version first when in view
+  const imageSrc = isInView ? src : '';
+  
+  // Create low quality placeholder URL by adding sizing parameters
+  const thumbSrc = isInView ? src + '&auto=format&fit=crop&w=100&q=10' : '';
+
+  const handleLoad = () => {
+    setIsLoaded(true);
+  };
+
   return (
     <div 
       id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 ${
-        isInView ? "opacity-100" : "opacity-0 translate-y-4"
+      className={`group relative overflow-hidden cursor-pointer transition-opacity duration-500 ${
+        isInView ? "opacity-100" : "opacity-0"
       }`}
       onClick={onClick}
     >
-      <div className="relative w-full">
-        <div 
-          className={`absolute inset-0 bg-gray-100 ${isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        />
-        <img
-          src={isInView ? src : ''}
-          data-src={src}
-          alt={alt}
-          className={`w-full object-cover transition-all duration-700 ${
-            isLoaded ? "scale-100 blur-0" : "scale-105 blur-md"
-          } group-hover:scale-110 group-hover:brightness-110`}
-          onLoad={() => setIsLoaded(true)}
-        />
+      <div className="relative w-full bg-gray-100">
+        {isInView && (
+          <>
+            {/* Low quality placeholder */}
+            <img
+              src={thumbSrc}
+              alt=""
+              aria-hidden="true"
+              className={`w-full object-cover absolute inset-0 ${isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+              loading="lazy"
+            />
+            
+            {/* Main image */}
+            <img
+              src={imageSrc}
+              alt={alt}
+              className={`w-full object-cover transition-opacity duration-500 ${
+                isLoaded ? "opacity-100" : "opacity-0"
+              } group-hover:scale-110 group-hover:brightness-110`}
+              onLoad={handleLoad}
+              loading="lazy"
+              style={{ backgroundColor: '#f3f4f6' }}
+            />
+          </>
+        )}
       </div>
-      {(title || category) && (
+
+      {isInView && (title || category) && (
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           {category && (
             <span className="inline-block rounded bg-white/20 px-2 py-1 text-xs text-white mb-1 backdrop-blur-sm">
@@ -79,4 +102,5 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   );
 };
 
-export default ImageCard;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(ImageCard);
