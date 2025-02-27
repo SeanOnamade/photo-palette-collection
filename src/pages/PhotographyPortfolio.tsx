@@ -108,6 +108,71 @@ const PhotographyPortfolio = () => {
       alt: "Close-up portrait with shallow depth of field",
       title: "Depth of Soul",
       category: "Portrait"
+    },
+    // Adding more photos to double the count - second set
+    // Vertical tabby cat
+    {
+      src: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1",
+      alt: "Grey tabby kitten",
+      title: "Curious Kitten",
+      category: "Pet"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1493962853295-0fd70327578a",
+      alt: "Brown ox on mountain",
+      title: "Mountain Guardian",
+      category: "Wildlife"
+    },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1582562124811-c09040d0a901",
+      alt: "Orange and white tabby cat",
+      title: "Cozy Companion",
+      category: "Pet"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d",
+      alt: "Brown antelope and zebra on field at daytime",
+      title: "Safari Friends",
+      category: "Wildlife"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1583766395091-2eb9994ed094",
+      alt: "Portrait of a woman with dramatic lighting - variation",
+      title: "Elegance II",
+      category: "Portrait"
+    },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1503104834685-7205e8607eb9",
+      alt: "Portrait of a woman with red hair - variation",
+      title: "Flame Revisited",
+      category: "Portrait"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      alt: "Landscape with mountains and lake - variation",
+      title: "Serenity Valley Dawn",
+      category: "Landscape"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1543466835-00a7907e9de1",
+      alt: "Close-up of a dog - variation",
+      title: "Loyal Friend",
+      category: "Pet"
+    },
+    // Vertical photo
+    {
+      src: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f",
+      alt: "Fashion model in stylish pose - variation",
+      title: "Haute Couture Evening",
+      category: "Fashion"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1469594292607-7bd90f8d3ba4",
+      alt: "Aerial view of forest and lake - variation",
+      title: "Natural Patterns Sunset",
+      category: "Aerial"
     }
   ];
 

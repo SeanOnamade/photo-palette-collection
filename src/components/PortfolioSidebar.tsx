@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Image, User, Mail, Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
+import { Home, Image, User, Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarLinkProps {
@@ -68,8 +68,7 @@ const PortfolioSidebar = () => {
       icon: <User className="h-5 w-5" />,
       isScrollLink: true,
       onClick: () => scrollToSection("portfolio-about")
-    },
-    { label: "Contact", href: "/contact", icon: <Mail className="h-5 w-5" /> },
+    }
   ];
 
   const socialLinks = [
