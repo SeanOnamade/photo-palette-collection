@@ -23,6 +23,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
   const chunkSize = 10; // Number of images to load per chunk
+  const loadingRef = useRef<HTMLDivElement>(null);
 
   // Adjust columns based on viewport width
   useEffect(() => {
@@ -48,26 +49,34 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
 
   // Progressive loading of more chunks as user scrolls
   useEffect(() => {
-    const handleScroll = () => {
-      if (!galleryRef.current) return;
-      
-      const bottom = galleryRef.current.getBoundingClientRect().bottom;
-      const windowHeight = window.innerHeight;
-      
-      // If we're approaching the bottom of the currently loaded images, load more
-      if (bottom < windowHeight * 2) {
-        setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
+    // Use Intersection Observer instead of scroll event
+    const loadMoreImages = (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting) {
+        // Only load more if we haven't loaded all images yet
+        if (visibleChunks * chunkSize < images.length) {
+          setTimeout(() => {
+            setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
+          }, 500); // Small delay for better UX
+        }
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [images.length]);
 
-  // Initial load of first chunk
-  useEffect(() => {
-    setVisibleChunks(1);
-  }, []);
+    const observer = new IntersectionObserver(loadMoreImages, {
+      rootMargin: '200px',
+      threshold: 0.1
+    });
+
+    if (loadingRef.current) {
+      observer.observe(loadingRef.current);
+    }
+
+    return () => {
+      if (loadingRef.current) {
+        observer.unobserve(loadingRef.current);
+      }
+    };
+  }, [visibleChunks, images.length, chunkSize]);
 
   // Get visible images for current chunk
   const visibleImages = useMemo(() => {
@@ -147,7 +156,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
 
       {/* Show loading indicator for more images */}
       {visibleImages.length < images.length && (
-        <div className="flex justify-center py-8">
+        <div ref={loadingRef} className="flex justify-center py-8">
           <div className="animate-pulse flex space-x-4">
             <div className="h-3 w-3 bg-gray-300 rounded-full"></div>
             <div className="h-3 w-3 bg-gray-300 rounded-full"></div>
