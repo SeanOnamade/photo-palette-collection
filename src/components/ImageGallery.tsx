@@ -22,8 +22,29 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [columnCount, setColumnCount] = useState(columns);
   const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
-  const chunkSize = 10; // Number of images to load per chunk
+  const chunkSize = 6; // Smaller chunks for smoother loading
   const loadingRef = useRef<HTMLDivElement>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  // Preload next and previous images when lightbox is open
+  useEffect(() => {
+    if (selectedImage && selectedIndex >= 0) {
+      const nextIndex = (selectedIndex + 1) % images.length;
+      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+      
+      // Preload next and previous images
+      const nextImg = new Image();
+      nextImg.src = images[nextIndex].src;
+      
+      const prevImg = new Image();
+      prevImg.src = images[prevIndex].src;
+    }
+  }, [selectedImage, selectedIndex, images]);
+
+  // Reset visible chunks when images change (e.g., when filtering)
+  useEffect(() => {
+    setVisibleChunks(1);
+  }, [images]);
 
   // Adjust columns based on viewport width
   useEffect(() => {
@@ -49,7 +70,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
 
   // Progressive loading of more chunks as user scrolls
   useEffect(() => {
-    // Use Intersection Observer instead of scroll event
+    // Use Intersection Observer for better performance
     const loadMoreImages = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       if (entry.isIntersecting) {
@@ -57,13 +78,13 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         if (visibleChunks * chunkSize < images.length) {
           setTimeout(() => {
             setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
-          }, 500); // Small delay for better UX
+          }, 300); // Smaller delay for better UX
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '200px',
+      rootMargin: '300px',
       threshold: 0.1
     });
 
@@ -86,6 +107,16 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
     setSelectedIndex(index);
+    setIsLightboxOpen(true);
+    // Disable scroll when lightbox is open
+    document.body.style.overflow = 'hidden';
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setSelectedImage(null);
+    setIsLightboxOpen(false);
+    // Re-enable scroll when lightbox is closed
+    document.body.style.overflow = '';
   }, []);
 
   const navigateImage = useCallback((direction: 'next' | 'prev') => {
@@ -107,13 +138,13 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       } else if (e.key === 'ArrowLeft') {
         navigateImage('prev');
       } else if (e.key === 'Escape') {
-        setSelectedImage(null);
+        closeLightbox();
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage, navigateImage]);
+  }, [selectedImage, navigateImage, closeLightbox]);
 
   // Organize images into columns for masonry layout
   const columnizedImages = useMemo(() => {
@@ -122,32 +153,46 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
     
     visibleImages.forEach((image, i) => {
+      // Distribute images evenly across columns
       cols[i % columnCount].push(image);
     });
     
     return cols;
   }, [columnCount, visibleImages]);
 
+  // Animation classes for gallery items
+  const getAnimationDelay = (columnIndex: number, imageIndex: number) => {
+    const delay = columnIndex * 50 + imageIndex * 30;
+    return `${delay}ms`;
+  };
+
   return (
     <>
+      {/* Gallery grid with improved animation and layout */}
       <div 
         ref={galleryRef}
-        className="flex gap-1"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
+        style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
       >
         {columnizedImages.map((column, columnIndex) => (
-          <div key={`column-${columnIndex}`} className="flex-1 flex flex-col gap-1">
+          <div key={`column-${columnIndex}`} className="flex flex-col space-y-2">
             {column.map((image, imageIndex) => {
               // Calculate the global index
-              const globalIndex = columnIndex + (imageIndex * columnCount);
+              const globalIndex = visibleImages.indexOf(image);
               return (
-                <ImageCard
+                <div 
                   key={`${image.src}-${imageIndex}`}
-                  src={image.src}
-                  alt={image.alt}
-                  title={image.title}
-                  category={image.category}
-                  onClick={() => openLightbox(image, globalIndex)}
-                />
+                  className="animate-fade-in"
+                  style={{ animationDelay: getAnimationDelay(columnIndex, imageIndex) }}
+                >
+                  <ImageCard
+                    src={image.src}
+                    alt={image.alt}
+                    title={image.title}
+                    category={image.category}
+                    onClick={() => openLightbox(image, globalIndex)}
+                  />
+                </div>
               );
             })}
           </div>
@@ -165,8 +210,17 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         </div>
       )}
 
-      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-black border-none">
+      {/* No results message when filtering returns empty */}
+      {images.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-portfolio-muted text-lg">No images found in this category.</p>
+          <p className="text-portfolio-muted mt-2">Try selecting a different filter.</p>
+        </div>
+      )}
+
+      {/* Enhanced lightbox with preloading and smooth transitions */}
+      <Dialog open={isLightboxOpen} onOpenChange={closeLightbox}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-none">
           {selectedImage && (
             <div className="flex flex-col h-full relative">
               <DialogClose className="absolute top-2 right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors">
@@ -180,6 +234,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                     navigateImage('prev');
                   }}
                   className="absolute left-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
+                  aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
@@ -187,7 +242,8 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                 <img
                   src={selectedImage.src}
                   alt={selectedImage.alt}
-                  className="max-h-full max-w-full object-contain animate-image-fade-in"
+                  className="max-h-full max-w-full object-contain animate-fade-in"
+                  style={{ maxHeight: '80vh' }}
                 />
                 
                 <button 
@@ -196,6 +252,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                     navigateImage('next');
                   }}
                   className="absolute right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
+                  aria-label="Next image"
                 >
                   <ChevronRight className="h-6 w-6" />
                 </button>

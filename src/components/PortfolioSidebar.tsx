@@ -9,27 +9,9 @@ interface SidebarLinkProps {
   icon: React.ReactNode;
   label: string;
   collapsed: boolean;
-  isScrollLink?: boolean;
-  onClick?: () => void;
 }
 
-const SidebarLink = ({ href, icon, label, collapsed, isScrollLink, onClick }: SidebarLinkProps) => {
-  if (isScrollLink) {
-    return (
-      <button
-        onClick={onClick}
-        className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all w-full text-left",
-          "text-portfolio-text hover:bg-gray-100 hover:text-portfolio-accent hover:scale-105",
-          collapsed && "justify-center px-2"
-        )}
-      >
-        <div className="flex-shrink-0">{icon}</div>
-        {!collapsed && <span>{label}</span>}
-      </button>
-    );
-  }
-  
+const SidebarLink = ({ href, icon, label, collapsed }: SidebarLinkProps) => {
   return (
     <NavLink
       to={href}
@@ -52,23 +34,10 @@ const SidebarLink = ({ href, icon, label, collapsed, isScrollLink, onClick }: Si
 const PortfolioSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   const navigation = [
     { label: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
     { label: "Portfolio", href: "/portfolio", icon: <Image className="h-5 w-5" /> },
-    { 
-      label: "About", 
-      href: "#about", 
-      icon: <User className="h-5 w-5" />,
-      isScrollLink: true,
-      onClick: () => scrollToSection("portfolio-about")
-    }
+    { label: "About", href: "/about", icon: <User className="h-5 w-5" /> }
   ];
 
   const socialLinks = [
@@ -102,8 +71,6 @@ const PortfolioSidebar = () => {
             icon={item.icon}
             label={item.label}
             collapsed={collapsed}
-            isScrollLink={item.isScrollLink}
-            onClick={item.onClick}
           />
         ))}
       </div>

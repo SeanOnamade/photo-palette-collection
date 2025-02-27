@@ -12,6 +12,26 @@ interface ImageCardProps {
 const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(1); // Default to square
+  
+  // Preload the image and determine aspect ratio
+  useEffect(() => {
+    if (!isInView) return;
+    
+    // Create a new image to preload and get dimensions
+    const img = new Image();
+    img.src = src;
+    
+    img.onload = () => {
+      // Set aspect ratio from the image
+      setAspectRatio(img.height / img.width);
+      setIsLoaded(true);
+    };
+    
+    return () => {
+      img.onload = null;
+    };
+  }, [src, isInView]);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -39,25 +59,34 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
     };
   }, [src]);
 
-  // Preload the image with a small version first when in view
-  const imageSrc = isInView ? src : '';
-  
-  // Create low quality placeholder URL by adding sizing parameters
-  const thumbSrc = isInView ? src + '&auto=format&fit=crop&w=100&q=10' : '';
-
-  const handleLoad = () => {
-    setIsLoaded(true);
+  // Generate optimized image URLs with appropriate sizing
+  const generateOptimizedImageUrl = (url: string, width: number, quality: number): string => {
+    // If Unsplash image, use their optimization parameters
+    if (url.includes('unsplash.com')) {
+      return `${url}?w=${width}&q=${quality}&auto=format&fit=crop`;
+    }
+    return url;
   };
+
+  // Create thumbnail URL for low-quality placeholder
+  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 20, 10) : '';
+  
+  // Main image URL with appropriate size based on viewport
+  const mainSrc = isInView ? generateOptimizedImageUrl(src, 800, 75) : '';
 
   return (
     <div 
       id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className={`group relative overflow-hidden cursor-pointer transition-opacity duration-500 ${
-        isInView ? "opacity-100" : "opacity-0"
-      }`}
+      className="group relative overflow-hidden cursor-pointer rounded-sm shadow-sm"
       onClick={onClick}
+      style={{ 
+        paddingBottom: `${aspectRatio * 100}%`,
+        backgroundColor: '#f3f4f6',
+        transition: 'transform 0.3s ease, opacity 0.5s ease',
+        opacity: isInView ? 1 : 0
+      }}
     >
-      <div className="relative w-full bg-gray-100">
+      <div className="absolute inset-0 w-full h-full">
         {isInView && (
           <>
             {/* Low quality placeholder */}
@@ -65,42 +94,66 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
               src={thumbSrc}
               alt=""
               aria-hidden="true"
-              className={`w-full object-cover absolute inset-0 ${isLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+              className="w-full h-full object-cover absolute inset-0 transition-opacity duration-300"
+              style={{ opacity: isLoaded ? 0 : 1, filter: 'blur(10px)' }}
               loading="lazy"
             />
             
             {/* Main image */}
             <img
-              src={imageSrc}
+              src={mainSrc}
               alt={alt}
-              className={`w-full object-cover transition-opacity duration-500 ${
-                isLoaded ? "opacity-100" : "opacity-0"
-              } group-hover:scale-110 group-hover:brightness-110`}
-              onLoad={handleLoad}
+              className="w-full h-full object-cover transition-all duration-300"
+              style={{ 
+                opacity: isLoaded ? 1 : 0,
+                transform: 'scale(1.0)',
+                filter: 'brightness(1)',
+              }}
+              onLoad={() => setIsLoaded(true)}
               loading="lazy"
-              style={{ backgroundColor: '#f3f4f6' }}
+            />
+            
+            {/* Overlay for hover effect */}
+            <div 
+              className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+              aria-hidden="true"
             />
           </>
         )}
       </div>
 
+      {/* Image info overlay */}
       {isInView && (title || category) && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 translate-y-full opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <div 
+          className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 
+                    translate-y-full opacity-0 transition-all duration-300 
+                    group-hover:translate-y-0 group-hover:opacity-100"
+        >
           {category && (
             <span className="inline-block rounded bg-white/20 px-2 py-1 text-xs text-white mb-1 backdrop-blur-sm">
               {category}
             </span>
           )}
           {title && (
-            <h3 className="text-white text-sm font-medium leading-tight">
+            <h3 className="text-white text-sm font-medium leading-tight line-clamp-2">
               {title}
             </h3>
           )}
         </div>
       )}
+
+      {/* Hover effect - will be applied via CSS */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%)',
+          transform: 'scale(1.5)',
+          pointerEvents: 'none'
+        }}
+      />
     </div>
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
+// Use memo to prevent unnecessary re-renders
 export default memo(ImageCard);

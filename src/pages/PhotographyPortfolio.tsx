@@ -1,18 +1,27 @@
 
 import { Instagram, Mail, Phone } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
 import PortfolioHero from "@/components/PortfolioHero";
 import ImageGallery from "@/components/ImageGallery";
-import PortfolioAbout from "@/components/PortfolioAbout";
 import PortfolioContact from "@/components/PortfolioContact";
 import PortfolioSidebar from "@/components/PortfolioSidebar";
-import { useEffect } from "react";
+
+// Define the image interface
+interface PortfolioImage {
+  src: string;
+  alt: string;
+  title?: string;
+  category?: string;
+}
 
 const PhotographyPortfolio = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const portfolioImages = [
+  const portfolioImages: PortfolioImage[] = [
     // Vertical photo
     {
       src: "https://images.unsplash.com/photo-1583766395091-2eb9994ed094",
@@ -176,6 +185,23 @@ const PhotographyPortfolio = () => {
     }
   ];
 
+  // Get unique categories for the filter
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set<string>();
+    portfolioImages.forEach(image => {
+      if (image.category) {
+        uniqueCategories.add(image.category);
+      }
+    });
+    return Array.from(uniqueCategories).sort();
+  }, [portfolioImages]);
+
+  // Filter images based on selected category
+  const filteredImages = useMemo(() => {
+    if (!selectedCategory) return portfolioImages;
+    return portfolioImages.filter(image => image.category === selectedCategory);
+  }, [portfolioImages, selectedCategory]);
+
   return (
     <div className="flex h-screen bg-portfolio-bg overflow-hidden">
       <PortfolioSidebar />
@@ -190,27 +216,38 @@ const PhotographyPortfolio = () => {
         <section className="py-16 md:py-24 px-4">
           <div className="max-w-[2000px] mx-auto">
             <h2 className="text-portfolio-text text-3xl font-light mb-2 text-center">Portfolio</h2>
-            <p className="text-portfolio-muted text-center mb-12 max-w-xl mx-auto">
+            <p className="text-portfolio-muted text-center mb-6 max-w-xl mx-auto">
               A curated selection of my finest work across various photography genres.
             </p>
-            <ImageGallery images={portfolioImages} columns={5} />
+            
+            {/* Category filter */}
+            <div className="mb-10 flex flex-wrap justify-center gap-2">
+              <button
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+                  ${selectedCategory === null 
+                    ? 'bg-portfolio-accent text-white' 
+                    : 'bg-gray-100 text-portfolio-text hover:bg-gray-200'}`}
+                onClick={() => setSelectedCategory(null)}
+              >
+                All
+              </button>
+              {categories.map(category => (
+                <button
+                  key={category}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+                    ${selectedCategory === category 
+                      ? 'bg-portfolio-accent text-white' 
+                      : 'bg-gray-100 text-portfolio-text hover:bg-gray-200'}`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            
+            <ImageGallery images={filteredImages} columns={5} />
           </div>
         </section>
-
-        <PortfolioAbout
-          title="About Me"
-          content={
-            <>
-              <p>
-                I am a photographer with a passion for capturing the authentic beauty in every moment. My journey began over a decade ago, and since then I've been fortunate to work with amazing clients across portrait, landscape, and commercial photography.
-              </p>
-              <p className="mt-4">
-                My approach is minimalist and intentional, focusing on composition, lighting, and the genuine emotion of each scene. I believe photography should tell a story and evoke feeling, not just document a moment.
-              </p>
-            </>
-          }
-          imageSrc="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
-        />
 
         <PortfolioContact
           title="Get in Touch"
