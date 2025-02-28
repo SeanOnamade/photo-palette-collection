@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Image, User, Menu, X, Instagram, Twitter, Facebook } from "lucide-react";
+import { Home, Image, User, Menu, X, Instagram, Twitter, Facebook, Newspaper, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarLinkProps {
@@ -41,9 +41,11 @@ const PortfolioSidebar = () => {
   ];
 
   const socialLinks = [
-    { label: "Instagram", href: "https://instagram.com", icon: <Instagram className="h-5 w-5" /> },
-    { label: "Twitter", href: "https://twitter.com", icon: <Twitter className="h-5 w-5" /> },
-    { label: "Facebook", href: "https://facebook.com", icon: <Facebook className="h-5 w-5" /> },
+    { label: "Instagram", href: "https://www.instagram.com/sdo.photos/", icon: <Instagram className="h-5 w-5" /> },
+    { label: "Twitter", href: "https://x.com/OnamadeSean", icon: <Twitter className="h-5 w-5" /> },
+    { label: "Hustler", href: "https://vanderbilthustler.com/staff_name/sean-onamade/", icon: <Newspaper className="h-5 w-5" /> },
+    // { label: "Mail", href: "sean.d.onamade@vanderbilt.edu", icon: <Mail className="h-5 w-5" /> },
+    // { label: "Facebook", href: "https://facebook.com", icon: <Facebook className="h-5 w-5" /> },
   ];
 
   return (
@@ -54,7 +56,7 @@ const PortfolioSidebar = () => {
       )}
     >
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        {!collapsed && <span className="font-medium">Photography</span>}
+        {!collapsed && <span className="font-medium">Sean Onamade</span>}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="rounded-md p-1.5 hover:bg-gray-100 transition-colors"

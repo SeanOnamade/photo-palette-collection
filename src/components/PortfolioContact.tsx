@@ -41,7 +41,7 @@ const PortfolioContact = ({ title, email, phone, socialLinks }: PortfolioContact
   return (
     <section
       id="portfolio-contact"
-      className="py-16 md:py-24 px-4 bg-portfolio-bg"
+      className="py-16 md:py-4 px-4 bg-portfolio-bg"
     >
       <div className="container max-w-2xl">
         <div

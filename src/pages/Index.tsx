@@ -18,9 +18,9 @@ const Index = () => {
       </div>
       
       <div className="text-center relative z-10">
-        <h1 className="text-4xl font-light mb-6 text-white">Welcome to Your Studio</h1>
+        <h1 className="text-4xl font-light mb-6 text-white">Sean Onamade</h1>
         <p className="text-xl text-white/80 mb-8 max-w-2xl">
-          This is your creative space. Explore your photography portfolio or start building something new.
+          Explore the portfolio. Build something new.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
