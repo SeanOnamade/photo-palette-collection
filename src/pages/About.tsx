@@ -27,7 +27,7 @@ const About = () => {
               <div className="w-full lg:w-1/2">
                 <div className="relative rounded-md overflow-hidden">
                   <img
-                    src="src\images\DSCF4225.jpg"
+                    src="\images\DSCF4225.jpg"
                     alt="About"
                     className="w-full h-auto object-cover aspect-[3/4]"
                     loading="lazy"
