@@ -9,6 +9,8 @@ interface Image {
   alt: string;
   title?: string;
   category?: string;
+  height?: number;
+  width?: number;
 }
 
 interface ImageGalleryProps {
@@ -22,24 +24,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [columnCount, setColumnCount] = useState(columns);
   const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
-  const chunkSize = 6; // Smaller chunks for smoother loading
+  const chunkSize = 10; // Increased chunk size for better initial load
   const loadingRef = useRef<HTMLDivElement>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  // Preload next and previous images when lightbox is open
-  useEffect(() => {
-    if (selectedImage && selectedIndex >= 0) {
-      const nextIndex = (selectedIndex + 1) % images.length;
-      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-      
-      // Preload next and previous images
-      const nextImg = new Image();
-      nextImg.src = images[nextIndex].src;
-      
-      const prevImg = new Image();
-      prevImg.src = images[prevIndex].src;
-    }
-  }, [selectedImage, selectedIndex, images]);
+  const [preloadedImages, setPreloadedImages] = useState<Record<string, boolean>>({});
 
   // Reset visible chunks when images change (e.g., when filtering)
   useEffect(() => {
@@ -78,13 +66,13 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         if (visibleChunks * chunkSize < images.length) {
           setTimeout(() => {
             setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
-          }, 300); // Smaller delay for better UX
+          }, 300); // Small delay for better UX
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '300px',
+      rootMargin: '500px',
       threshold: 0.1
     });
 
@@ -103,6 +91,28 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const visibleImages = useMemo(() => {
     return images.slice(0, visibleChunks * chunkSize);
   }, [images, visibleChunks, chunkSize]);
+
+  // Preload next and previous images when lightbox is open
+  useEffect(() => {
+    if (selectedImage && selectedIndex >= 0) {
+      const nextIndex = (selectedIndex + 1) % images.length;
+      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+      
+      // Mark these images as needing preloading
+      setPreloadedImages(prev => ({
+        ...prev,
+        [images[nextIndex].src]: true,
+        [images[prevIndex].src]: true
+      }));
+      
+      // Preload next and previous images
+      const nextImg = new Image();
+      nextImg.src = images[nextIndex].src;
+      
+      const prevImg = new Image();
+      prevImg.src = images[prevIndex].src;
+    }
+  }, [selectedImage, selectedIndex, images]);
 
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
@@ -146,15 +156,29 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // Organize images into columns for masonry layout
+  // Organize images into columns for masonry layout using height-based distribution
   const columnizedImages = useMemo(() => {
-    if (columnCount <= 0) return [];
+    if (columnCount <= 0 || visibleImages.length === 0) return [];
     
+    // Initialize arrays for each column with their heights
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
+    const colHeights: number[] = Array(columnCount).fill(0);
     
-    visibleImages.forEach((image, i) => {
-      // Distribute images evenly across columns
-      cols[i % columnCount].push(image);
+    // Assign each image to the shortest column
+    visibleImages.forEach((image) => {
+      // Find column with minimum height
+      const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
+      
+      // Add image to that column
+      cols[minHeightIndex].push(image);
+      
+      // Update the column height - use aspect ratio as proxy for height
+      // Default aspect ratio is set to 1.5 for images without dimensions
+      const aspectRatio = image.height && image.width 
+        ? image.height / image.width 
+        : 1.5;
+      
+      colHeights[minHeightIndex] += aspectRatio;
     });
     
     return cols;
@@ -171,19 +195,22 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       {/* Gallery grid with improved animation and layout */}
       <div 
         ref={galleryRef}
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
         style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
       >
         {columnizedImages.map((column, columnIndex) => (
-          <div key={`column-${columnIndex}`} className="flex flex-col space-y-2">
+          <div key={`column-${columnIndex}`} className="flex flex-col space-y-3">
             {column.map((image, imageIndex) => {
               // Calculate the global index
               const globalIndex = visibleImages.indexOf(image);
+              
               return (
                 <div 
                   key={`${image.src}-${imageIndex}`}
                   className="animate-fade-in"
-                  style={{ animationDelay: getAnimationDelay(columnIndex, imageIndex) }}
+                  style={{ 
+                    animationDelay: getAnimationDelay(columnIndex, imageIndex),
+                  }}
                 >
                   <ImageCard
                     src={image.src}

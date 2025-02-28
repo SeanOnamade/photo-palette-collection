@@ -43,7 +43,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       },
       { 
         threshold: 0.01,
-        rootMargin: "500px" // Increased for better preloading
+        rootMargin: "800px" // Increased for better preloading
       }
     );
     
@@ -59,29 +59,31 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
     };
   }, [src]);
 
-  // Generate optimized image URLs with appropriate sizing
+  // Generate optimized image URLs with appropriate sizing and format
   const generateOptimizedImageUrl = (url: string, width: number, quality: number): string => {
     // If Unsplash image, use their optimization parameters
     if (url.includes('unsplash.com')) {
-      return `${url}?w=${width}&q=${quality}&auto=format&fit=crop`;
+      return `${url}?w=${width}&q=${quality}&auto=format&fm=webp`;
     }
+    
+    // For local images, we can't convert format on the fly without a server
+    // But we can still optimize the loading process
     return url;
   };
 
   // Create thumbnail URL for low-quality placeholder
-  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 20, 10) : '';
+  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 10, 5) : '';
   
   // Main image URL with appropriate size based on viewport
-  const mainSrc = isInView ? generateOptimizedImageUrl(src, 800, 75) : '';
+  const mainSrc = isInView ? generateOptimizedImageUrl(src, 600, 80) : '';
 
   return (
     <div 
       id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className="group relative overflow-hidden cursor-pointer rounded-sm shadow-sm"
+      className="group relative overflow-hidden cursor-pointer rounded-sm shadow-sm bg-gray-100"
       onClick={onClick}
       style={{ 
         paddingBottom: `${aspectRatio * 100}%`,
-        backgroundColor: '#f3f4f6',
         transition: 'transform 0.3s ease, opacity 0.5s ease',
         opacity: isInView ? 1 : 0
       }}
@@ -111,6 +113,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
               }}
               onLoad={() => setIsLoaded(true)}
               loading="lazy"
+              decoding="async"
             />
             
             {/* Overlay for hover effect */}
