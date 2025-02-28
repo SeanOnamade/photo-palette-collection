@@ -21,193 +21,193 @@ const PhotographyPortfolio = () => {
 
   const portfolioImages: PortfolioImage[] = [
     {
-      src: "src/images/Batch1--2.jpg",
+      src: "/images/Batch1--2.jpg",
       alt: "Portrait of downtown Calgary through chain link fence",
       title: "Through the Chain Link",
       category: "Urban"
     },
     {
-      src: "src/images/Batch1--7.jpg",
+      src: "/images/Batch1--7.jpg",
       alt: "Food Soda restaurant sign",
       title: "Food Soda",
       category: "Urban"
     },
     {
-      src: "src/images/DecPost-10.jpg",
+      src: "/images/DecPost-10.jpg",
       alt: "Group of friends walking during Halloween",
       title: "Hallowe'en",
       category: "Fun"
     },
     {
-      src: "src/images/DecPost-14.jpg",
+      src: "/images/DecPost-14.jpg",
       alt: "Friends partying",
       title: "Party People",
       category: "Fun"
     },
     {
-      src: "src/images/Centennial2023.11.11-SO-4.jpg",
+      src: "/images/Centennial2023.11.11-SO-4.jpg",
       alt: "Centennial Park at dusk",
       title: "100",
       category: "Landscape"
     },
     {
-      src: "src/images/DSC01150.jpg",
+      src: "/images/DSC01150.jpg",
       alt: "Cheerleaders at a soccer game hyping up child fans",
       title: "Cheer Leaders",
       category: "Sports"
     },
     {
-      src: "src/images/DSC01296.jpg",
+      src: "/images/DSC01296.jpg",
       alt: "Goalie making a kick",
       title: "Full Force",
       category: "Sports"
     },
     {
-      src: "src/images/DSC03012-3.jpg",
+      src: "/images/DSC03012-3.jpg",
       alt: "Landscape photo of Alumni Lawn",
       title: "Alumni Lawn",
       category: "Landscape"
     },
     {
-      src: "src/images/DSC5051.jpg",
+      src: "/images/DSC5051.jpg",
       alt: "Performers at Harambee 2023",
       title: "Harambee",
       category: "Fun"
     },
     {
-      src: "src/images/DSCF4225.jpg",
+      src: "/images/DSCF4225.jpg",
       alt: "Portrait of Sean",
       title: "Smug Mug by Nafees",
       category: "Portrait"
     },
     {
-      src: "src/images/IMG_0050.jpg",
+      src: "/images/IMG_0050.jpg",
       alt: "Portrait of a dog",
       title: "Cavalier",
       category: "Portrait"
     },
     {
-      src: "src/images/IMG_0391.jpg",
+      src: "/images/IMG_0391.jpg",
       alt: "Kevin on a hill",
       title: "At His Feet",
       category: "Landscape"
     },
     {
-      src: "src/images/IMG_1002.jpg",
+      src: "/images/IMG_1002.jpg",
       alt: "The Calgary Stampede",
       title: "Stampede",
       category: "Fun"
     },
     {
-      src: "src/images/IMG_1016.jpg",
+      src: "/images/IMG_1016.jpg",
       alt: "Portrait of Precious in front of a Ferris Wheel",
       title: "Precious",
       category: "Portrait"
     },
     {
-      src: "src/images/IMG_1586.jpg",
+      src: "/images/IMG_1586.jpg",
       alt: "Statue of a knight on a horse in France",
       title: "Steed",
       category: "Landscape"
     },
     {
-      src: "src/images/IMG_1752.jpg",
+      src: "/images/IMG_1752.jpg",
       alt: "Carnival ride",
       title: "Rounds",
       category: "Fun"
     },
     {
-      src: "src/images/IMG_2149.jpg",
+      src: "/images/IMG_2149.jpg",
       alt: "Jed on his bike",
       title: "Jed",
       category: "Portrait"
     },
     {
-      src: "src/images/IMG_2291.jpg",
+      src: "/images/IMG_2291.jpg",
       alt: "The Eiffel Tower",
       title: "Tour Eiffel",
       category: "Urban"
     },
     {
-      src: "src/images/IMG_3718.jpg",
+      src: "/images/IMG_3718.jpg",
       alt: "Pinching the Eiffel Tower",
       title: "Figurine",
       category: "Urban"
     },
     {
-      src: "src/images/IMG_4497.jpg",
+      src: "/images/IMG_4497.jpg",
       alt: "Below the Eiffel Tower at dusk",
       title: "Au-Dessous",
       category: "Urban"
     },
     // {
-    //   src: "src/images/IMG_5475.jpg",
+    //   src: "/images/IMG_5475.jpg",
     //   alt: "Portrait of a woman with dramatic lighting",
     //   title: "Elegance",
     //   category: "Portrait"
     // },
     {
-      src: "src/images/IMG_5476.jpg",
+      src: "/images/IMG_5476.jpg",
       alt: "Boxer on the side of the ring",
       title: "Throw Down",
       category: "Events"
     },
     {
-      src: "src/images/IMG_6620.jpg",
+      src: "/images/IMG_6620.jpg",
       alt: "Portrait of a woman with dramatic lighting",
       title: "Layover",
       category: "Misc."
     },
     {
-      src: "src/images/IMG_7614.jpg",
+      src: "/images/IMG_7614.jpg",
       alt: "A woman on the swing in the park",
       title: "Swing Set",
       category: "Landscape"
     },
     {
-      src: "src/images/IMG_8126.jpg",
+      src: "/images/IMG_8126.jpg",
       alt: "People at the Basilique du Sacré-Cœur de Montmartre",
       title: "Pose",
       category: "Urban"
     },
     {
-      src: "src/images/IMG_8768.jpg",
+      src: "/images/IMG_8768.jpg",
       alt: "Buildings in Nice, France",
       title: "Stramigioli",
       category: "Urban"
     },
     {
-      src: "src/images/IMG_9098-2.jpg",
+      src: "/images/IMG_9098-2.jpg",
       alt: "Buildings on the coast of Nice, France",
       title: "Beach Front",
       category: "Landscape"
     },
     {
-      src: "src/images/IMG_9659.jpg",
+      src: "/images/IMG_9659.jpg",
       alt: "Portrait of a rubber duck",
       title: "The Frenchman",
       category: "Portrait"
     },
     {
-      src: "src/images/IMG_9881-2.jpg",
+      src: "/images/IMG_9881-2.jpg",
       alt: "The Arc de Triomphe",
       title: "Arc",
       category: "Urban"
     },
     {
-      src: "src/images/ParisStock-25.jpg",
+      src: "/images/ParisStock-25.jpg",
       alt: "The Arc de Triomphe with dramatic lighting",
       title: "Triomphe",
       category: "Urban"
     },
     {
-      src: "src/images/ParisStock-03.jpg",
+      src: "/images/ParisStock-03.jpg",
       alt: "The Eiffel Tower",
       title: "Needle in the Sky",
       category: "Urban"
     },
     {
-      src: "src/images/Summer-06.jpg",
+      src: "/images/Summer-06.jpg",
       alt: "Kevin brushing his shoulder",
       title: "Can't Touch This",
       category: "Portrait"
@@ -216,193 +216,193 @@ const PhotographyPortfolio = () => {
     // PORTFOLIO IMAGES STARTING
     ///
     {
-      src: "src/images/Portfolio-01.jpg",
+      src: "/images/Portfolio-01.jpg",
       alt: "Man at a train station",
       title: "Station 8",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-02.jpg",
+      src: "/images/Portfolio-02.jpg",
       alt: "The Eiffel Tower",
       title: "Steel and Sky",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-03.jpg",
+      src: "/images/Portfolio-03.jpg",
       alt: "Cathedral vaults",
       title: "Cathedral",
       category: "Architecture"
     },
     {
-      src: "src/images/Portfolio-04.jpg",
+      src: "/images/Portfolio-04.jpg",
       alt: "Smokestack in Paris",
       title: "Smog",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-05.jpg",
+      src: "/images/Portfolio-05.jpg",
       alt: "Gare de Lyon, Paris",
       title: "Gare de Lyon",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-06.jpg",
+      src: "/images/Portfolio-06.jpg",
       alt: "Winding Paris Street",
       title: "Winding Path",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-07.jpg",
+      src: "/images/Portfolio-07.jpg",
       alt: "Man walking through Paris",
       title: "Stranger",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-08.jpg",
+      src: "/images/Portfolio-08.jpg",
       title: "Love All Over",
       alt: "Locks at the Sacré-Coeur",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-09.jpg",
+      src: "/images/Portfolio-09.jpg",
       alt: "View of the city of Brussels",
       title: "Brussels",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-10.jpg",
+      src: "/images/Portfolio-10.jpg",
       alt: "Lauren at the beach",
       title: "Lauren",
       category: "Portrait"
     },
     {
-      src: "src/images/Portfolio-11.jpg",
+      src: "/images/Portfolio-11.jpg",
       alt: "Girl at the beach",
       title: "Beach",
       category: "Landscape"
     },
     {
-      src: "src/images/Portfolio-12.jpg",
+      src: "/images/Portfolio-12.jpg",
       alt: "Streets at Nice",
       title: "Nice Streets",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-13.jpg",
+      src: "/images/Portfolio-13.jpg",
       alt: "Skies at beach in Nice",
       title: "Nice Skies",
       category: "Landscape"
     },
     {
-      src: "src/images/Portfolio-14.jpg",
+      src: "/images/Portfolio-14.jpg",
       alt: "Lauren and Amira at the beach",
       title: "Heart!",
       category: "Misc."
     },
     {
-      src: "src/images/Portfolio-15.jpg",
+      src: "/images/Portfolio-15.jpg",
       alt: "Beach pose",
       title: "11:10",
       category: "Misc."
     },
     {
-      src: "src/images/Portfolio-16.jpg",
+      src: "/images/Portfolio-16.jpg",
       alt: "A conversation",
       title: "What?",
       category: "Portrait"
     },
     {
-      src: "src/images/Portfolio-17.jpg",
+      src: "/images/Portfolio-17.jpg",
       alt: "Amira in Nice",
       title: "Amira",
       category: "Portrait"
     },
     {
-      src: "src/images/Portfolio-18.jpg",
+      src: "/images/Portfolio-18.jpg",
       alt: "Taking a selfie",
       title: "Our Selfie",
       category: "Portrait"
     },
     {
-      src: "src/images/Portfolio-19.jpg",
+      src: "/images/Portfolio-19.jpg",
       alt: "People at the Port of Nice",
       title: "Port of Nice",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-20.jpg",
+      src: "/images/Portfolio-20.jpg",
       alt: "People at the Port of Nice",
       title: "Port of Nice II",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-21.jpg",
+      src: "/images/Portfolio-21.jpg",
       alt: "Girl feeding ducks bread",
       title: "Sharing is Caring",
       category: "Misc."
     },
     {
-      src: "src/images/Portfolio-22.jpg",
+      src: "/images/Portfolio-22.jpg",
       alt: "Two koi fish",
       title: "Twin Koi",
       category: "Wildlife"
     },
     {
-      src: "src/images/Portfolio-23.jpg",
+      src: "/images/Portfolio-23.jpg",
       alt: "My friends on the Paris Metro",
       title: "La Métro",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-24.jpg",
+      src: "/images/Portfolio-24.jpg",
       alt: "Women on the Champs-Elysees",
       title: "Light Trails",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-25.jpg",
+      src: "/images/Portfolio-25.jpg",
       alt: "Light trails by the Arc de Triomphe",
       title: "At an Angle",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-26.jpg",
+      src: "/images/Portfolio-26.jpg",
       alt: "Zeke grabbing a bite",
       title: "Zeke",
       category: "Portrait"
     },
     {
-      src: "src/images/Portfolio-27.jpg",
+      src: "/images/Portfolio-27.jpg",
       alt: "Girls on a trampoline",
       title: "Trampoline",
       category: "Fun"
     },
     {
-      src: "src/images/Portfolio-28.jpg",
+      src: "/images/Portfolio-28.jpg",
       alt: "People passing the Sainte-Chapelle in Paris",
       title: "Past the Past",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-29.jpg",
+      src: "/images/Portfolio-29.jpg",
       alt: "People on a bridge in Paris",
       title: "Pont",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-30.jpg",
+      src: "/images/Portfolio-30.jpg",
       alt: "The Louvre Pyramid in Paris",
       title: "Strongest Shape, Weakest Material",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-31.jpg",
+      src: "/images/Portfolio-31.jpg",
       alt: "Tower in Paris",
       title: "Tour d'Ivoire",
       category: "Urban"
     },
     {
-      src: "src/images/Portfolio-32.jpg",
+      src: "/images/Portfolio-32.jpg",
       alt: "People at the Port of Nice",
       title: "Port of Nice II",
       category: "Urban"
