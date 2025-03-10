@@ -42,7 +42,7 @@ const PortfolioSidebar = () => {
 
   const socialLinks = [
     { label: "Instagram", href: "https://www.instagram.com/sdo.photos/", icon: <Instagram className="h-5 w-5" /> },
-    { label: "Twitter", href: "https://x.com/OnamadeSean", icon: <Twitter className="h-5 w-5" /> },
+    // { label: "Twitter", href: "https://x.com/OnamadeSean", icon: <Twitter className="h-5 w-5" /> },
     { label: "Hustler", href: "https://vanderbilthustler.com/staff_name/sean-onamade/", icon: <Newspaper className="h-5 w-5" /> },
     // { label: "Mail", href: "sean.d.onamade@vanderbilt.edu", icon: <Mail className="h-5 w-5" /> },
     // { label: "Facebook", href: "https://facebook.com", icon: <Facebook className="h-5 w-5" /> },

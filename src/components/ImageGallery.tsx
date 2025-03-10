@@ -1,9 +1,18 @@
-
-import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  memo,
+  useMemo,
+} from "react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import ImageCard from "./ImageCard";
 
+/**
+ * Interfaces
+ */
 interface Image {
   src: string;
   alt: string;
@@ -16,76 +25,110 @@ interface ImageGalleryProps {
   columns?: number;
 }
 
+/**
+ * A responsive, lazy-loaded, chunked masonry gallery with a lightbox.
+ */
 const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [columnCount, setColumnCount] = useState(columns);
-  const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
-  const chunkSize = 6; // Smaller chunks for smoother loading
-  const loadingRef = useRef<HTMLDivElement>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // Preload next and previous images when lightbox is open
+  // Increase or decrease chunkSize for controlling how many images load at once.
+  // A smaller chunkSize means images load more gradually (but more network requests).
+  // A larger chunkSize means fewer requests but bigger jumps in loaded content.
+  const chunkSize = 6;
+
+  const loadingRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Preload next and previous images when lightbox is open.
+   * This helps ensure near-instant navigation in the lightbox.
+   */
   useEffect(() => {
     if (selectedImage && selectedIndex >= 0) {
       const nextIndex = (selectedIndex + 1) % images.length;
       const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-      
+
       // Preload next and previous images
-      const nextImg = new Image();
+      const nextImg = new window.Image();
       nextImg.src = images[nextIndex].src;
-      
-      const prevImg = new Image();
+
+      const prevImg = new window.Image();
       prevImg.src = images[prevIndex].src;
     }
   }, [selectedImage, selectedIndex, images]);
 
-  // Reset visible chunks when images change (e.g., when filtering)
+  /**
+   * Reset visible chunks when images change (e.g., user filtered images).
+   */
   useEffect(() => {
     setVisibleChunks(1);
   }, [images]);
 
-  // Adjust columns based on viewport width
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 640) {
-        setColumnCount(1);
-      } else if (width < 768) {
-        setColumnCount(2);
-      } else if (width < 1024) {
-        setColumnCount(3);
-      } else if (width < 1280) {
-        setColumnCount(4);
-      } else {
-        setColumnCount(columns);
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+  /**
+   * Throttle the resize handler to avoid excessive recalculations.
+   * This helps performance if users resize their browser frequently.
+   */
+  const handleResize = useCallback(() => {
+    const width = window.innerWidth;
+    if (width < 640) {
+      setColumnCount(1);
+    } else if (width < 768) {
+      setColumnCount(2);
+    } else if (width < 1024) {
+      setColumnCount(3);
+    } else if (width < 1280) {
+      setColumnCount(4);
+    } else {
+      setColumnCount(columns);
+    }
   }, [columns]);
 
-  // Progressive loading of more chunks as user scrolls
   useEffect(() => {
-    // Use Intersection Observer for better performance
+    // Initial calculation
+    handleResize();
+
+    // A small performance optimization: throttle the resize event
+    let resizeTimer: number | null = null;
+    const onResize = () => {
+      if (resizeTimer) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        handleResize();
+        resizeTimer = null;
+      }, 150);
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [handleResize]);
+
+  /**
+   * Progressive loading: Use an IntersectionObserver on the loadingRef
+   * to load more chunks as the user scrolls down.
+   */
+  useEffect(() => {
     const loadMoreImages = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       if (entry.isIntersecting) {
-        // Only load more if we haven't loaded all images yet
+        // Only load more if we haven't loaded all images
         if (visibleChunks * chunkSize < images.length) {
+          // Short delay to simulate "infinite scroll" effect more smoothly
           setTimeout(() => {
-            setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
-          }, 300); // Smaller delay for better UX
+            setVisibleChunks((prev) =>
+              Math.min(prev + 1, Math.ceil(images.length / chunkSize))
+            );
+          }, 150);
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '300px',
-      threshold: 0.1
+      // Increase rootMargin to start loading images earlier
+      rootMargin: "500px",
+      threshold: 0.01,
     });
 
     if (loadingRef.current) {
@@ -97,90 +140,108 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         observer.unobserve(loadingRef.current);
       }
     };
-  }, [visibleChunks, images.length, chunkSize]);
+  }, [visibleChunks, images.length]);
 
-  // Get visible images for current chunk
+  /**
+   * Return only the images that should be visible so far, based on current chunk.
+   */
   const visibleImages = useMemo(() => {
     return images.slice(0, visibleChunks * chunkSize);
   }, [images, visibleChunks, chunkSize]);
 
+  /**
+   * Open/close the lightbox
+   */
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
     setSelectedIndex(index);
     setIsLightboxOpen(true);
-    // Disable scroll when lightbox is open
-    document.body.style.overflow = 'hidden';
+
+    // Disable page scroll behind the lightbox
+    document.body.style.overflow = "hidden";
   }, []);
 
   const closeLightbox = useCallback(() => {
     setSelectedImage(null);
     setIsLightboxOpen(false);
-    // Re-enable scroll when lightbox is closed
-    document.body.style.overflow = '';
+
+    // Re-enable page scroll
+    document.body.style.overflow = "";
   }, []);
 
-  const navigateImage = useCallback((direction: 'next' | 'prev') => {
-    const newIndex = direction === 'next' 
-      ? (selectedIndex + 1) % images.length
-      : (selectedIndex - 1 + images.length) % images.length;
-    
-    setSelectedImage(images[newIndex]);
-    setSelectedIndex(newIndex);
-  }, [selectedIndex, images]);
+  /**
+   * Navigate to next/previous image in the lightbox.
+   */
+  const navigateImage = useCallback(
+    (direction: "next" | "prev") => {
+      const newIndex =
+        direction === "next"
+          ? (selectedIndex + 1) % images.length
+          : (selectedIndex - 1 + images.length) % images.length;
 
-  // Handle keyboard navigation
+      setSelectedImage(images[newIndex]);
+      setSelectedIndex(newIndex);
+    },
+    [selectedIndex, images]
+  );
+
+  /**
+   * Keyboard navigation for the lightbox (arrow keys, Escape).
+   */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedImage) return;
-      
-      if (e.key === 'ArrowRight') {
-        navigateImage('next');
-      } else if (e.key === 'ArrowLeft') {
-        navigateImage('prev');
-      } else if (e.key === 'Escape') {
+      if (e.key === "ArrowRight") {
+        navigateImage("next");
+      } else if (e.key === "ArrowLeft") {
+        navigateImage("prev");
+      } else if (e.key === "Escape") {
         closeLightbox();
       }
     };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // Organize images into columns for masonry layout
+  /**
+   * Organize images into columns for a masonry layout.
+   */
   const columnizedImages = useMemo(() => {
     if (columnCount <= 0) return [];
-    
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
-    
-    visibleImages.forEach((image, i) => {
-      // Distribute images evenly across columns
-      cols[i % columnCount].push(image);
+    visibleImages.forEach((img, i) => {
+      cols[i % columnCount].push(img);
     });
-    
     return cols;
   }, [columnCount, visibleImages]);
 
-  // Animation classes for gallery items
+  /**
+   * Simple animation delay function for fade-in
+   */
   const getAnimationDelay = (columnIndex: number, imageIndex: number) => {
+    // Stagger the fade-in animation slightly by column & index
     const delay = columnIndex * 50 + imageIndex * 30;
     return `${delay}ms`;
   };
 
   return (
     <>
-      {/* Gallery grid with improved animation and layout */}
-      <div 
+      {/* Gallery grid */}
+      <div
         ref={galleryRef}
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
-        style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
+        style={{
+          opacity: images.length > 0 ? 1 : 0,
+          transition: "opacity 0.5s ease",
+        }}
       >
         {columnizedImages.map((column, columnIndex) => (
           <div key={`column-${columnIndex}`} className="flex flex-col space-y-2">
             {column.map((image, imageIndex) => {
-              // Calculate the global index
               const globalIndex = visibleImages.indexOf(image);
               return (
-                <div 
+                <div
                   key={`${image.src}-${imageIndex}`}
                   className="animate-fade-in"
                   style={{ animationDelay: getAnimationDelay(columnIndex, imageIndex) }}
@@ -199,7 +260,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         ))}
       </div>
 
-      {/* Show loading indicator for more images */}
+      {/* Loading indicator when there are more images to show */}
       {visibleImages.length < images.length && (
         <div ref={loadingRef} className="flex justify-center py-8">
           <div className="animate-pulse flex space-x-4">
@@ -210,15 +271,19 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         </div>
       )}
 
-      {/* No results message when filtering returns empty */}
+      {/* No results message */}
       {images.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-portfolio-muted text-lg">No images found in this category.</p>
-          <p className="text-portfolio-muted mt-2">Try selecting a different filter.</p>
+          <p className="text-portfolio-muted text-lg">
+            No images found in this category.
+          </p>
+          <p className="text-portfolio-muted mt-2">
+            Try selecting a different filter.
+          </p>
         </div>
       )}
 
-      {/* Enhanced lightbox with preloading and smooth transitions */}
+      {/* Lightbox Dialog */}
       <Dialog open={isLightboxOpen} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-none">
           {selectedImage && (
@@ -226,30 +291,30 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
               <DialogClose className="absolute top-2 right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors">
                 <X className="h-6 w-6" />
               </DialogClose>
-              
+
               <div className="relative h-[80vh] w-full flex items-center justify-center">
-                <button 
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigateImage('prev');
+                    navigateImage("prev");
                   }}
                   className="absolute left-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
-                
+
                 <img
                   src={selectedImage.src}
                   alt={selectedImage.alt}
                   className="max-h-full max-w-full object-contain animate-fade-in"
-                  style={{ maxHeight: '80vh' }}
+                  style={{ maxHeight: "80vh" }}
                 />
-                
-                <button 
+
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigateImage('next');
+                    navigateImage("next");
                   }}
                   className="absolute right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
                   aria-label="Next image"
@@ -257,7 +322,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                   <ChevronRight className="h-6 w-6" />
                 </button>
               </div>
-              
+
               {(selectedImage.title || selectedImage.category) && (
                 <div className="p-4 bg-black text-white">
                   {selectedImage.category && (
@@ -280,5 +345,4 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   );
 };
 
-// Memoize to prevent unnecessary re-renders
 export default memo(ImageGallery);
