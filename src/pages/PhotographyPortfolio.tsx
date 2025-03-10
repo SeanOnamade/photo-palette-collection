@@ -12,6 +12,23 @@ interface PortfolioImage {
   category?: string;
 }
 
+/**
+ * Helper function: If the URL is a Cloudinary link,
+ * insert `q_auto,f_auto` transformations after `/upload/`.
+ * Otherwise, return the URL unchanged.
+ */
+function transformCloudinaryUrl(url: string) {
+  const cloudName = "res.cloudinary.com/dnhzt8ver"; // Replace with your actual Cloudinary subdomain if needed
+  // Only modify if it's from your Cloudinary account and contains '/upload/'
+  if (url.includes(cloudName) && url.includes("/upload/")) {
+    const [before, after] = url.split("/upload/");
+    // Insert transformations right after '/upload/'
+    // e.g. '/upload/q_auto,f_auto/'
+    return `${before}/upload/q_auto,f_auto/${after}`;
+  }
+  return url; // Return as-is for local images or other hosts
+}
+
 const PhotographyPortfolio = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
@@ -28,7 +45,8 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
-      src: "/images/Batch1--7.jpg",
+      // src: "/images/Batch1--7.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575488/djdlvslkk5wtyincdd57.jpg",
       alt: "Food Soda restaurant sign",
       title: "Food Soda",
       category: "Urban"
@@ -40,7 +58,8 @@ const PhotographyPortfolio = () => {
       category: "Fun"
     },
     {
-      src: "/images/DecPost-14.jpg",
+      // src: "/images/DecPost-14.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575492/po9ojlmhfviy9ptwkbwb.jpg",
       alt: "Friends partying",
       title: "Party People",
       category: "Fun"
@@ -58,7 +77,8 @@ const PhotographyPortfolio = () => {
       category: "Sports"
     },
     {
-      src: "/images/DSC01296.jpg",
+      // src: "/images/DSC01296.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575492/reiv5j2h94qf1tdyunwt.jpg",
       alt: "Goalie making a kick",
       title: "Full Force",
       category: "Sports"
@@ -76,19 +96,22 @@ const PhotographyPortfolio = () => {
       category: "Fun"
     },
     {
-      src: "/images/DSCF4225.jpg",
+      // src: "/images/DSCF4225.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575496/dpsd5ylj93x8jqgbn1o1.jpg",
       alt: "Portrait of Sean",
       title: "Smug Mug by Nafees",
       category: "Portrait"
     },
     {
-      src: "/images/IMG_0050.jpg",
+      // src: "/images/IMG_0050.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/vxynmg2ekoyayathaq5j.jpg",
       alt: "Portrait of a dog",
       title: "Cavalier",
       category: "Portrait"
     },
     {
-      src: "/images/IMG_0391.jpg",
+      // src: "/images/IMG_0391.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575501/cxrucuym3oogpk0ocerd.jpg",
       alt: "Kevin on a hill",
       title: "At His Feet",
       category: "Landscape"
@@ -100,7 +123,8 @@ const PhotographyPortfolio = () => {
       category: "Fun"
     },
     {
-      src: "/images/IMG_1016.jpg",
+      // src: "/images/IMG_1016.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/o5mrjq0rp0xjmhabzehu.jpg",
       alt: "Portrait of Precious in front of a Ferris Wheel",
       title: "Precious",
       category: "Portrait"
@@ -154,8 +178,9 @@ const PhotographyPortfolio = () => {
       category: "Events"
     },
     {
-      src: "/images/IMG_6620.jpg",
-      alt: "Portrait of a woman with dramatic lighting",
+      // src: "/images/IMG_6620.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575589/r9gzjffqgrabnnix3wif.jpg",
+      alt: "Denver Airport",
       title: "Layover",
       category: "Misc."
     },
@@ -184,31 +209,36 @@ const PhotographyPortfolio = () => {
       category: "Landscape"
     },
     {
-      src: "/images/IMG_9659.jpg",
+      // src: "/images/IMG_9659.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575590/gsdsotaaetijemlcejph.jpg",
       alt: "Portrait of a rubber duck",
       title: "The Frenchman",
       category: "Portrait"
     },
     {
-      src: "/images/IMG_9881-2.jpg",
+      // src: "/images/IMG_9881-2.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575595/zs6ltg0p0ihmsli8ktlm.jpg",
       alt: "The Arc de Triomphe",
       title: "Arc",
       category: "Urban"
     },
     {
-      src: "/images/ParisStock-25.jpg",
+      // src: "/images/ParisStock-25.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/k0ptpkmk7atqsoygfvgs.jpg",
       alt: "The Arc de Triomphe with dramatic lighting",
       title: "Triomphe",
       category: "Urban"
     },
     {
-      src: "/images/ParisStock-03.jpg",
+      // src: "/images/ParisStock-03.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575591/fiumnmznn4o2bhqoicjf.jpg",
       alt: "The Eiffel Tower",
       title: "Needle in the Sky",
       category: "Urban"
     },
     {
-      src: "/images/Summer-06.jpg",
+      // src: "/images/Summer-06.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575734/ggey6l1gzuycxpcyk4kt.jpg",
       alt: "Kevin brushing his shoulder",
       title: "Can't Touch This",
       category: "Portrait"
@@ -217,19 +247,22 @@ const PhotographyPortfolio = () => {
     // PORTFOLIO IMAGES STARTING
     ///
     {
-      src: "/images/Portfolio-01.jpg",
+      // src: "/images/Portfolio-01.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/h6fsowqukftwt9qj3lao.jpg",
       alt: "Man at a train station",
       title: "Station 8",
       category: "Urban"
     },
     {
-      src: "/images/Portfolio-02.jpg",
+      // src: "/images/Portfolio-02.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/xephmmad7zdlqfy9t7dm.jpg",
       alt: "The Eiffel Tower",
       title: "Steel and Sky",
       category: "Urban"
     },
     {
-      src: "/images/Portfolio-03.jpg",
+      // src: "/images/Portfolio-03.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/rtw4fkoeywig55iiqiko.jpg",
       alt: "Cathedral vaults",
       title: "Cathedral",
       category: "Architecture"
@@ -557,6 +590,13 @@ const PhotographyPortfolio = () => {
     // }
   ];
 
+  const transformedImages = useMemo(() => {
+    return portfolioImages.map((image) => ({
+      ...image,
+      src: transformCloudinaryUrl(image.src)
+    }));
+  }, [portfolioImages]);
+
   // Get unique categories for the filter
   const categories = useMemo(() => {
     const uniqueCategories = new Set<string>();
@@ -570,14 +610,16 @@ const PhotographyPortfolio = () => {
 
   // Filter images based on selected category
   const filteredImages = useMemo(() => {
-    if (!selectedCategory) return portfolioImages;
-    return portfolioImages.filter(image => image.category === selectedCategory);
-  }, [portfolioImages, selectedCategory]);
+    if (!selectedCategory) return transformedImages;
+    return transformedImages.filter(
+      (image) => image.category === selectedCategory
+    );
+  }, [transformedImages, selectedCategory]);
 
   return (
     <div className="flex h-screen bg-portfolio-bg overflow-hidden">
       <PortfolioSidebar />
-      
+
       <div className="flex-1 overflow-y-auto">
         <PortfolioHero
           title="Moments in Time"
@@ -587,36 +629,44 @@ const PhotographyPortfolio = () => {
 
         <section className="py-16 md:py-24 px-4">
           <div className="max-w-[2000px] mx-auto">
-            <h2 className="text-portfolio-text text-3xl font-light mb-2 text-center">Portfolio</h2>
+            <h2 className="text-portfolio-text text-3xl font-light mb-2 text-center">
+              Portfolio
+            </h2>
             <p className="text-portfolio-muted text-center mb-8 max-w-xl mx-auto">
-              A curated selection of my finest work across various photography genres.
+              A curated selection of my finest work across various photography
+              genres.
             </p>
-            
+
             {/* Category filter */}
             <div className="mb-10 flex flex-wrap justify-center gap-2">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all
-                  ${selectedCategory === null 
-                    ? 'bg-portfolio-accent text-white' 
-                    : 'bg-gray-100 text-portfolio-text hover:bg-gray-200'}`}
+                  ${
+                    selectedCategory === null
+                      ? "bg-portfolio-accent text-white"
+                      : "bg-gray-100 text-portfolio-text hover:bg-gray-200"
+                  }`}
                 onClick={() => setSelectedCategory(null)}
               >
                 All
               </button>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <button
                   key={category}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all
-                    ${selectedCategory === category 
-                      ? 'bg-portfolio-accent text-white' 
-                      : 'bg-gray-100 text-portfolio-text hover:bg-gray-200'}`}
+                    ${
+                      selectedCategory === category
+                        ? "bg-portfolio-accent text-white"
+                        : "bg-gray-100 text-portfolio-text hover:bg-gray-200"
+                    }`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category}
                 </button>
               ))}
             </div>
-            
+
+            {/* Use the filtered images that have transformations for Cloudinary URLs */}
             <ImageGallery images={filteredImages} columns={5} />
           </div>
         </section>
