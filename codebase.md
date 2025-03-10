@@ -882,7 +882,6 @@ export default App;
 # src\components\ImageCard.tsx
 
 ```tsx
-
 import { useState, useEffect, memo } from "react";
 
 interface ImageCardProps {
@@ -897,26 +896,29 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1); // Default to square
-  
-  // Preload the image and determine aspect ratio
+
+  /**
+   * Preload the image once it's in view, and determine aspect ratio.
+   */
   useEffect(() => {
     if (!isInView) return;
-    
-    // Create a new image to preload and get dimensions
+
     const img = new Image();
     img.src = src;
-    
+
     img.onload = () => {
-      // Set aspect ratio from the image
       setAspectRatio(img.height / img.width);
       setIsLoaded(true);
     };
-    
+
     return () => {
       img.onload = null;
     };
   }, [src, isInView]);
-  
+
+  /**
+   * Use Intersection Observer to detect when the element is in view.
+   */
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -925,17 +927,20 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
           observer.disconnect();
         }
       },
-      { 
+      {
         threshold: 0.01,
-        rootMargin: "500px" // Increased for better preloading
+        rootMargin: "800px", // Start loading images well before they're visible
       }
     );
-    
-    const currentElement = document.getElementById(`image-${src.replace(/[^\w]/g, '-')}`);
+
+    // Create a stable ID from the src
+    const elementId = `image-${src.replace(/[^\w]/g, "-")}`;
+    const currentElement = document.getElementById(elementId);
+
     if (currentElement) {
       observer.observe(currentElement);
     }
-    
+
     return () => {
       if (currentElement) {
         observer.unobserve(currentElement);
@@ -943,62 +948,64 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
     };
   }, [src]);
 
-  // Generate optimized image URLs with appropriate sizing
-  const generateOptimizedImageUrl = (url: string, width: number, quality: number): string => {
-    // If Unsplash image, use their optimization parameters
-    if (url.includes('unsplash.com')) {
-      return `${url}?w=${width}&q=${quality}&auto=format&fit=crop`;
-    }
+  /**
+   * For now, we simply return the original URL. 
+   * If you want true local image resizing/compression,
+   * you'd need a build step or a server to generate smaller images.
+   */
+  const generateOptimizedImageUrl = (url: string, _width: number, _quality: number): string => {
+    // For local images, we can't convert format on the fly without a server or external service.
     return url;
   };
 
-  // Create thumbnail URL for low-quality placeholder
-  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 20, 10) : '';
-  
-  // Main image URL with appropriate size based on viewport
-  const mainSrc = isInView ? generateOptimizedImageUrl(src, 800, 75) : '';
+  // Low-quality placeholder
+  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 10, 5) : "";
+
+  // Main image
+  const mainSrc = isInView ? generateOptimizedImageUrl(src, 600, 80) : "";
 
   return (
-    <div 
-      id={`image-${src.replace(/[^\w]/g, '-')}`}
-      className="group relative overflow-hidden cursor-pointer rounded-sm shadow-sm"
+    <div
+      id={`image-${src.replace(/[^\w]/g, "-")}`}
+      className="group relative overflow-hidden cursor-pointer rounded-sm shadow-sm bg-gray-100"
       onClick={onClick}
-      style={{ 
+      style={{
+        // Reserve vertical space using the aspect ratio
         paddingBottom: `${aspectRatio * 100}%`,
-        backgroundColor: '#f3f4f6',
-        transition: 'transform 0.3s ease, opacity 0.5s ease',
-        opacity: isInView ? 1 : 0
+        transition: "transform 0.3s ease, opacity 0.5s ease",
+        opacity: isInView ? 1 : 0,
       }}
     >
       <div className="absolute inset-0 w-full h-full">
         {isInView && (
           <>
-            {/* Low quality placeholder */}
+            {/* Low-quality placeholder */}
             <img
               src={thumbSrc}
               alt=""
               aria-hidden="true"
-              className="w-full h-full object-cover absolute inset-0 transition-opacity duration-300"
-              style={{ opacity: isLoaded ? 0 : 1, filter: 'blur(10px)' }}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+              style={{ opacity: isLoaded ? 0 : 1, filter: "blur(10px)" }}
               loading="lazy"
             />
-            
+
             {/* Main image */}
             <img
               src={mainSrc}
               alt={alt}
-              className="w-full h-full object-cover transition-all duration-300"
-              style={{ 
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+              style={{
                 opacity: isLoaded ? 1 : 0,
-                transform: 'scale(1.0)',
-                filter: 'brightness(1)',
+                transform: "scale(1.0)",
+                filter: "brightness(1)",
               }}
               onLoad={() => setIsLoaded(true)}
               loading="lazy"
+              decoding="async"
             />
-            
+
             {/* Overlay for hover effect */}
-            <div 
+            <div
               className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"
               aria-hidden="true"
             />
@@ -1008,10 +1015,15 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
 
       {/* Image info overlay */}
       {isInView && (title || category) && (
-        <div 
-          className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 
-                    translate-y-full opacity-0 transition-all duration-300 
-                    group-hover:translate-y-0 group-hover:opacity-100"
+        <div
+          className="
+            absolute bottom-0 left-0 right-0 
+            bg-gradient-to-t from-black/70 to-transparent 
+            p-4 translate-y-full opacity-0 
+            transition-all duration-300 
+            group-hover:translate-y-0 
+            group-hover:opacity-100
+          "
         >
           {category && (
             <span className="inline-block rounded bg-white/20 px-2 py-1 text-xs text-white mb-1 backdrop-blur-sm">
@@ -1026,20 +1038,20 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
         </div>
       )}
 
-      {/* Hover effect - will be applied via CSS */}
-      <div 
+      {/* Decorative hover effect */}
+      <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%)',
-          transform: 'scale(1.5)',
-          pointerEvents: 'none'
+          backgroundImage:
+            "radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 70%)",
+          transform: "scale(1.5)",
+          pointerEvents: "none",
         }}
       />
     </div>
   );
 };
 
-// Use memo to prevent unnecessary re-renders
 export default memo(ImageCard);
 
 ```
@@ -1047,7 +1059,6 @@ export default memo(ImageCard);
 # src\components\ImageGallery.tsx
 
 ```tsx
-
 import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -1058,6 +1069,8 @@ interface Image {
   alt: string;
   title?: string;
   category?: string;
+  height?: number;
+  width?: number;
 }
 
 interface ImageGalleryProps {
@@ -1071,24 +1084,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [columnCount, setColumnCount] = useState(columns);
   const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
-  const chunkSize = 6; // Smaller chunks for smoother loading
+  const chunkSize = 10; // Increased chunk size for better initial load
   const loadingRef = useRef<HTMLDivElement>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  // Preload next and previous images when lightbox is open
-  useEffect(() => {
-    if (selectedImage && selectedIndex >= 0) {
-      const nextIndex = (selectedIndex + 1) % images.length;
-      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-      
-      // Preload next and previous images
-      const nextImg = new Image();
-      nextImg.src = images[nextIndex].src;
-      
-      const prevImg = new Image();
-      prevImg.src = images[prevIndex].src;
-    }
-  }, [selectedImage, selectedIndex, images]);
+  const [preloadedImages, setPreloadedImages] = useState<Record<string, boolean>>({});
 
   // Reset visible chunks when images change (e.g., when filtering)
   useEffect(() => {
@@ -1127,13 +1126,13 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         if (visibleChunks * chunkSize < images.length) {
           setTimeout(() => {
             setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
-          }, 300); // Smaller delay for better UX
+          }, 300); // Small delay for better UX
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '300px',
+      rootMargin: '500px',
       threshold: 0.1
     });
 
@@ -1152,6 +1151,28 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const visibleImages = useMemo(() => {
     return images.slice(0, visibleChunks * chunkSize);
   }, [images, visibleChunks, chunkSize]);
+
+  // Preload next and previous images when lightbox is open
+  useEffect(() => {
+    if (selectedImage && selectedIndex >= 0) {
+      const nextIndex = (selectedIndex + 1) % images.length;
+      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+      
+      // Mark these images as needing preloading
+      setPreloadedImages(prev => ({
+        ...prev,
+        [images[nextIndex].src]: true,
+        [images[prevIndex].src]: true
+      }));
+      
+      // Preload next and previous images
+      const nextImg = new Image();
+      nextImg.src = images[nextIndex].src;
+      
+      const prevImg = new Image();
+      prevImg.src = images[prevIndex].src;
+    }
+  }, [selectedImage, selectedIndex, images]);
 
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
@@ -1195,15 +1216,29 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // Organize images into columns for masonry layout
+  // Organize images into columns for masonry layout using height-based distribution
   const columnizedImages = useMemo(() => {
-    if (columnCount <= 0) return [];
+    if (columnCount <= 0 || visibleImages.length === 0) return [];
     
+    // Initialize arrays for each column with their heights
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
+    const colHeights: number[] = Array(columnCount).fill(0);
     
-    visibleImages.forEach((image, i) => {
-      // Distribute images evenly across columns
-      cols[i % columnCount].push(image);
+    // Assign each image to the shortest column
+    visibleImages.forEach((image) => {
+      // Find column with minimum height
+      const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
+      
+      // Add image to that column
+      cols[minHeightIndex].push(image);
+      
+      // Update the column height - use aspect ratio as proxy for height
+      // Default aspect ratio is set to 1.5 for images without dimensions
+      const aspectRatio = image.height && image.width 
+        ? image.height / image.width 
+        : 1.5;
+      
+      colHeights[minHeightIndex] += aspectRatio;
     });
     
     return cols;
@@ -1220,19 +1255,22 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       {/* Gallery grid with improved animation and layout */}
       <div 
         ref={galleryRef}
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
         style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
       >
         {columnizedImages.map((column, columnIndex) => (
-          <div key={`column-${columnIndex}`} className="flex flex-col space-y-2">
+          <div key={`column-${columnIndex}`} className="flex flex-col space-y-3">
             {column.map((image, imageIndex) => {
               // Calculate the global index
               const globalIndex = visibleImages.indexOf(image);
+              
               return (
                 <div 
                   key={`${image.src}-${imageIndex}`}
                   className="animate-fade-in"
-                  style={{ animationDelay: getAnimationDelay(columnIndex, imageIndex) }}
+                  style={{ 
+                    animationDelay: getAnimationDelay(columnIndex, imageIndex),
+                  }}
                 >
                   <ImageCard
                     src={image.src}
@@ -1331,7 +1369,6 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
 
 // Memoize to prevent unnecessary re-renders
 export default memo(ImageGallery);
-
 ```
 
 # src\components\PortfolioAbout.tsx
@@ -1673,7 +1710,7 @@ const PortfolioSidebar = () => {
 
   const socialLinks = [
     { label: "Instagram", href: "https://www.instagram.com/sdo.photos/", icon: <Instagram className="h-5 w-5" /> },
-    { label: "Twitter", href: "https://x.com/OnamadeSean", icon: <Twitter className="h-5 w-5" /> },
+    // { label: "Twitter", href: "https://x.com/OnamadeSean", icon: <Twitter className="h-5 w-5" /> },
     { label: "Hustler", href: "https://vanderbilthustler.com/staff_name/sean-onamade/", icon: <Newspaper className="h-5 w-5" /> },
     // { label: "Mail", href: "sean.d.onamade@vanderbilt.edu", icon: <Mail className="h-5 w-5" /> },
     // { label: "Facebook", href: "https://facebook.com", icon: <Facebook className="h-5 w-5" /> },
@@ -7937,7 +7974,6 @@ const PhotographyPortfolio = () => {
 };
 
 export default PhotographyPortfolio;
-
 ```
 
 # src\vite-env.d.ts

@@ -21,7 +21,8 @@ const PhotographyPortfolio = () => {
 
   const portfolioImages: PortfolioImage[] = [
     {
-      src: "/images/Batch1--2.jpg",
+      // src: "/images/Batch1--2.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575488/gpl9pfvawuckdrdtcit2.jpg",
       alt: "Portrait of downtown Calgary through chain link fence",
       title: "Through the Chain Link",
       category: "Urban"
