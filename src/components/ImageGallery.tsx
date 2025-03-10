@@ -18,6 +18,8 @@ interface Image {
   alt: string;
   title?: string;
   category?: string;
+  height?: number;
+  width?: number;
 }
 
 interface ImageGalleryProps {
@@ -33,33 +35,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [columnCount, setColumnCount] = useState(columns);
   const [visibleChunks, setVisibleChunks] = useState(1);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  // Increase or decrease chunkSize for controlling how many images load at once.
-  // A smaller chunkSize means images load more gradually (but more network requests).
-  // A larger chunkSize means fewer requests but bigger jumps in loaded content.
-  const chunkSize = 6;
-
+  const chunkSize = 10; // Increased chunk size for better initial load
   const loadingRef = useRef<HTMLDivElement>(null);
-  const galleryRef = useRef<HTMLDivElement>(null);
-
-  /**
-   * Preload next and previous images when lightbox is open.
-   * This helps ensure near-instant navigation in the lightbox.
-   */
-  useEffect(() => {
-    if (selectedImage && selectedIndex >= 0) {
-      const nextIndex = (selectedIndex + 1) % images.length;
-      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-
-      // Preload next and previous images
-      const nextImg = new window.Image();
-      nextImg.src = images[nextIndex].src;
-
-      const prevImg = new window.Image();
-      prevImg.src = images[prevIndex].src;
-    }
-  }, [selectedImage, selectedIndex, images]);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [preloadedImages, setPreloadedImages] = useState<Record<string, boolean>>({});
 
   /**
    * Reset visible chunks when images change (e.g., user filtered images).
@@ -117,18 +96,15 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         if (visibleChunks * chunkSize < images.length) {
           // Short delay to simulate "infinite scroll" effect more smoothly
           setTimeout(() => {
-            setVisibleChunks((prev) =>
-              Math.min(prev + 1, Math.ceil(images.length / chunkSize))
-            );
-          }, 150);
+            setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
+          }, 300); // Small delay for better UX
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      // Increase rootMargin to start loading images earlier
-      rootMargin: "500px",
-      threshold: 0.01,
+      rootMargin: '500px',
+      threshold: 0.1
     });
 
     if (loadingRef.current) {
@@ -149,9 +125,28 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return images.slice(0, visibleChunks * chunkSize);
   }, [images, visibleChunks, chunkSize]);
 
-  /**
-   * Open/close the lightbox
-   */
+  // Preload next and previous images when lightbox is open
+  useEffect(() => {
+    if (selectedImage && selectedIndex >= 0) {
+      const nextIndex = (selectedIndex + 1) % images.length;
+      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+      
+      // Mark these images as needing preloading
+      setPreloadedImages(prev => ({
+        ...prev,
+        [images[nextIndex].src]: true,
+        [images[prevIndex].src]: true
+      }));
+      
+      // Preload next and previous images
+      const nextImg = new Image();
+      nextImg.src = images[nextIndex].src;
+      
+      const prevImg = new Image();
+      prevImg.src = images[prevIndex].src;
+    }
+  }, [selectedImage, selectedIndex, images]);
+
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
     setSelectedIndex(index);
@@ -204,14 +199,29 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  /**
-   * Organize images into columns for a masonry layout.
-   */
+  // Organize images into columns for masonry layout using height-based distribution
   const columnizedImages = useMemo(() => {
-    if (columnCount <= 0) return [];
+    if (columnCount <= 0 || visibleImages.length === 0) return [];
+    
+    // Initialize arrays for each column with their heights
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
-    visibleImages.forEach((img, i) => {
-      cols[i % columnCount].push(img);
+    const colHeights: number[] = Array(columnCount).fill(0);
+    
+    // Assign each image to the shortest column
+    visibleImages.forEach((image) => {
+      // Find column with minimum height
+      const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
+      
+      // Add image to that column
+      cols[minHeightIndex].push(image);
+      
+      // Update the column height - use aspect ratio as proxy for height
+      // Default aspect ratio is set to 1.5 for images without dimensions
+      const aspectRatio = image.height && image.width 
+        ? image.height / image.width 
+        : 1.5;
+      
+      colHeights[minHeightIndex] += aspectRatio;
     });
     return cols;
   }, [columnCount, visibleImages]);
@@ -230,21 +240,21 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       {/* Gallery grid */}
       <div
         ref={galleryRef}
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"
-        style={{
-          opacity: images.length > 0 ? 1 : 0,
-          transition: "opacity 0.5s ease",
-        }}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+        style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
       >
         {columnizedImages.map((column, columnIndex) => (
-          <div key={`column-${columnIndex}`} className="flex flex-col space-y-2">
+          <div key={`column-${columnIndex}`} className="flex flex-col space-y-3">
             {column.map((image, imageIndex) => {
               const globalIndex = visibleImages.indexOf(image);
+              
               return (
                 <div
                   key={`${image.src}-${imageIndex}`}
                   className="animate-fade-in"
-                  style={{ animationDelay: getAnimationDelay(columnIndex, imageIndex) }}
+                  style={{ 
+                    animationDelay: getAnimationDelay(columnIndex, imageIndex),
+                  }}
                 >
                   <ImageCard
                     src={image.src}
