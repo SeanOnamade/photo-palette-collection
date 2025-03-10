@@ -1,18 +1,9 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  memo,
-  useMemo,
-} from "react";
+
+import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import ImageCard from "./ImageCard";
 
-/**
- * Interfaces
- */
 interface Image {
   src: string;
   alt: string;
@@ -27,74 +18,52 @@ interface ImageGalleryProps {
   columns?: number;
 }
 
-/**
- * A responsive, lazy-loaded, chunked masonry gallery with a lightbox.
- */
 const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [columnCount, setColumnCount] = useState(columns);
+  const galleryRef = useRef<HTMLDivElement>(null);
   const [visibleChunks, setVisibleChunks] = useState(1);
   const chunkSize = 10; // Increased chunk size for better initial load
   const loadingRef = useRef<HTMLDivElement>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [preloadedImages, setPreloadedImages] = useState<Record<string, boolean>>({});
 
-  /**
-   * Reset visible chunks when images change (e.g., user filtered images).
-   */
+  // Reset visible chunks when images change (e.g., when filtering)
   useEffect(() => {
     setVisibleChunks(1);
   }, [images]);
 
-  /**
-   * Throttle the resize handler to avoid excessive recalculations.
-   * This helps performance if users resize their browser frequently.
-   */
-  const handleResize = useCallback(() => {
-    const width = window.innerWidth;
-    if (width < 640) {
-      setColumnCount(1);
-    } else if (width < 768) {
-      setColumnCount(2);
-    } else if (width < 1024) {
-      setColumnCount(3);
-    } else if (width < 1280) {
-      setColumnCount(4);
-    } else {
-      setColumnCount(columns);
-    }
-  }, [columns]);
-
+  // Adjust columns based on viewport width
   useEffect(() => {
-    // Initial calculation
-    handleResize();
-
-    // A small performance optimization: throttle the resize event
-    let resizeTimer: number | null = null;
-    const onResize = () => {
-      if (resizeTimer) window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        handleResize();
-        resizeTimer = null;
-      }, 150);
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setColumnCount(1);
+      } else if (width < 768) {
+        setColumnCount(2);
+      } else if (width < 1024) {
+        setColumnCount(3);
+      } else if (width < 1280) {
+        setColumnCount(4);
+      } else {
+        setColumnCount(columns);
+      }
     };
 
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [handleResize]);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [columns]);
 
-  /**
-   * Progressive loading: Use an IntersectionObserver on the loadingRef
-   * to load more chunks as the user scrolls down.
-   */
+  // Progressive loading of more chunks as user scrolls
   useEffect(() => {
+    // Use Intersection Observer for better performance
     const loadMoreImages = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       if (entry.isIntersecting) {
-        // Only load more if we haven't loaded all images
+        // Only load more if we haven't loaded all images yet
         if (visibleChunks * chunkSize < images.length) {
-          // Short delay to simulate "infinite scroll" effect more smoothly
           setTimeout(() => {
             setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
           }, 300); // Small delay for better UX
@@ -116,11 +85,9 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         observer.unobserve(loadingRef.current);
       }
     };
-  }, [visibleChunks, images.length]);
+  }, [visibleChunks, images.length, chunkSize]);
 
-  /**
-   * Return only the images that should be visible so far, based on current chunk.
-   */
+  // Get visible images for current chunk
   const visibleImages = useMemo(() => {
     return images.slice(0, visibleChunks * chunkSize);
   }, [images, visibleChunks, chunkSize]);
@@ -151,52 +118,42 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     setSelectedImage(image);
     setSelectedIndex(index);
     setIsLightboxOpen(true);
-
-    // Disable page scroll behind the lightbox
-    document.body.style.overflow = "hidden";
+    // Disable scroll when lightbox is open
+    document.body.style.overflow = 'hidden';
   }, []);
 
   const closeLightbox = useCallback(() => {
     setSelectedImage(null);
     setIsLightboxOpen(false);
-
-    // Re-enable page scroll
-    document.body.style.overflow = "";
+    // Re-enable scroll when lightbox is closed
+    document.body.style.overflow = '';
   }, []);
 
-  /**
-   * Navigate to next/previous image in the lightbox.
-   */
-  const navigateImage = useCallback(
-    (direction: "next" | "prev") => {
-      const newIndex =
-        direction === "next"
-          ? (selectedIndex + 1) % images.length
-          : (selectedIndex - 1 + images.length) % images.length;
+  const navigateImage = useCallback((direction: 'next' | 'prev') => {
+    const newIndex = direction === 'next' 
+      ? (selectedIndex + 1) % images.length
+      : (selectedIndex - 1 + images.length) % images.length;
+    
+    setSelectedImage(images[newIndex]);
+    setSelectedIndex(newIndex);
+  }, [selectedIndex, images]);
 
-      setSelectedImage(images[newIndex]);
-      setSelectedIndex(newIndex);
-    },
-    [selectedIndex, images]
-  );
-
-  /**
-   * Keyboard navigation for the lightbox (arrow keys, Escape).
-   */
+  // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedImage) return;
-      if (e.key === "ArrowRight") {
-        navigateImage("next");
-      } else if (e.key === "ArrowLeft") {
-        navigateImage("prev");
-      } else if (e.key === "Escape") {
+      
+      if (e.key === 'ArrowRight') {
+        navigateImage('next');
+      } else if (e.key === 'ArrowLeft') {
+        navigateImage('prev');
+      } else if (e.key === 'Escape') {
         closeLightbox();
       }
     };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
   // Organize images into columns for masonry layout using height-based distribution
@@ -223,22 +180,20 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       
       colHeights[minHeightIndex] += aspectRatio;
     });
+    
     return cols;
   }, [columnCount, visibleImages]);
 
-  /**
-   * Simple animation delay function for fade-in
-   */
+  // Animation classes for gallery items
   const getAnimationDelay = (columnIndex: number, imageIndex: number) => {
-    // Stagger the fade-in animation slightly by column & index
     const delay = columnIndex * 50 + imageIndex * 30;
     return `${delay}ms`;
   };
 
   return (
     <>
-      {/* Gallery grid */}
-      <div
+      {/* Gallery grid with improved animation and layout */}
+      <div 
         ref={galleryRef}
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
         style={{ opacity: images.length > 0 ? 1 : 0, transition: 'opacity 0.5s ease' }}
@@ -246,10 +201,11 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         {columnizedImages.map((column, columnIndex) => (
           <div key={`column-${columnIndex}`} className="flex flex-col space-y-3">
             {column.map((image, imageIndex) => {
+              // Calculate the global index
               const globalIndex = visibleImages.indexOf(image);
               
               return (
-                <div
+                <div 
                   key={`${image.src}-${imageIndex}`}
                   className="animate-fade-in"
                   style={{ 
@@ -270,7 +226,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         ))}
       </div>
 
-      {/* Loading indicator when there are more images to show */}
+      {/* Show loading indicator for more images */}
       {visibleImages.length < images.length && (
         <div ref={loadingRef} className="flex justify-center py-8">
           <div className="animate-pulse flex space-x-4">
@@ -281,19 +237,15 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
         </div>
       )}
 
-      {/* No results message */}
+      {/* No results message when filtering returns empty */}
       {images.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-portfolio-muted text-lg">
-            No images found in this category.
-          </p>
-          <p className="text-portfolio-muted mt-2">
-            Try selecting a different filter.
-          </p>
+          <p className="text-portfolio-muted text-lg">No images found in this category.</p>
+          <p className="text-portfolio-muted mt-2">Try selecting a different filter.</p>
         </div>
       )}
 
-      {/* Lightbox Dialog */}
+      {/* Enhanced lightbox with preloading and smooth transitions */}
       <Dialog open={isLightboxOpen} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-none">
           {selectedImage && (
@@ -301,30 +253,30 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
               <DialogClose className="absolute top-2 right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors">
                 <X className="h-6 w-6" />
               </DialogClose>
-
+              
               <div className="relative h-[80vh] w-full flex items-center justify-center">
-                <button
+                <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigateImage("prev");
+                    navigateImage('prev');
                   }}
                   className="absolute left-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
-
+                
                 <img
                   src={selectedImage.src}
                   alt={selectedImage.alt}
                   className="max-h-full max-w-full object-contain animate-fade-in"
-                  style={{ maxHeight: "80vh" }}
+                  style={{ maxHeight: '80vh' }}
                 />
-
-                <button
+                
+                <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigateImage("next");
+                    navigateImage('next');
                   }}
                   className="absolute right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
                   aria-label="Next image"
@@ -332,7 +284,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                   <ChevronRight className="h-6 w-6" />
                 </button>
               </div>
-
+              
               {(selectedImage.title || selectedImage.category) && (
                 <div className="p-4 bg-black text-white">
                   {selectedImage.category && (
@@ -355,4 +307,5 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   );
 };
 
+// Memoize to prevent unnecessary re-renders
 export default memo(ImageGallery);
