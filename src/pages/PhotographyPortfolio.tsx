@@ -90,16 +90,34 @@ const PhotographyPortfolio = () => {
       category: "Landscape"
     },
     {
+      src: "/images/IMG_9418.jpg",
+      alt: "Woman posed by painting",
+      title: "Robe in Motion",
+      category: "Portrait"
+    },
+    {
       src: "/images/DSC5051.jpg",
       alt: "Performers at Harambee 2023",
       title: "Harambee",
-      category: "Fun"
+      category: "Events"
+    },
+    {
+      src: "/images/IMG_0212.jpg",
+      alt: "People at the date party",
+      title: "Date Party",
+      category: "Events"
     },
     {
       // src: "/images/DSCF4225.jpg",
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575496/dpsd5ylj93x8jqgbn1o1.jpg",
       alt: "Portrait of Sean",
       title: "Smug Mug by Nafees",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_8502.jpg",
+      alt: "Davis dressed for Halloween",
+      title: "Davis",
       category: "Portrait"
     },
     {
@@ -145,7 +163,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_2149.jpg",
       alt: "Jed on his bike",
       title: "Jed",
-      category: "Portrait"
+      category: "Misc."
     },
     {
       src: "/images/IMG_2291.jpg",
@@ -185,12 +203,6 @@ const PhotographyPortfolio = () => {
       category: "Misc."
     },
     {
-      src: "/images/IMG_7614.jpg",
-      alt: "A woman on the swing in the park",
-      title: "Swing Set",
-      category: "Landscape"
-    },
-    {
       src: "/images/IMG_8126.jpg",
       alt: "People at the Basilique du Sacré-Cœur de Montmartre",
       title: "Pose",
@@ -206,6 +218,12 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_9098-2.jpg",
       alt: "Buildings on the coast of Nice, France",
       title: "Beach Front",
+      category: "Landscape"
+    },
+    {
+      src: "/images/IMG_7614.jpg",
+      alt: "A woman on the swing in the park",
+      title: "Swing Set",
       category: "Landscape"
     },
     {
@@ -254,18 +272,18 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
-      // src: "/images/Portfolio-02.jpg",
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/xephmmad7zdlqfy9t7dm.jpg",
-      alt: "The Eiffel Tower",
-      title: "Steel and Sky",
-      category: "Urban"
-    },
-    {
       // src: "/images/Portfolio-03.jpg",
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/rtw4fkoeywig55iiqiko.jpg",
       alt: "Cathedral vaults",
       title: "Cathedral",
       category: "Architecture"
+    },
+    {
+      // src: "/images/Portfolio-02.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/xephmmad7zdlqfy9t7dm.jpg",
+      alt: "The Eiffel Tower",
+      title: "Steel and Sky",
+      category: "Urban"
     },
     {
       src: "/images/Portfolio-04.jpg",
@@ -296,6 +314,12 @@ const PhotographyPortfolio = () => {
       title: "Love All Over",
       alt: "Locks at the Sacré-Coeur",
       category: "Urban"
+    },
+    {
+      src: "/images/IMG_9416.jpg",
+      alt: "Woman posed by painting",
+      title: "Robe Like A Cape",
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-09.jpg",
@@ -379,7 +403,7 @@ const PhotographyPortfolio = () => {
       src: "/images/Portfolio-22.jpg",
       alt: "Two koi fish",
       title: "Twin Koi",
-      category: "Wildlife"
+      category: "Misc."
     },
     {
       src: "/images/Portfolio-23.jpg",
@@ -392,6 +416,12 @@ const PhotographyPortfolio = () => {
       alt: "Women on the Champs-Elysees",
       title: "Light Trails",
       category: "Urban"
+    },
+    {
+      src: "/images/IMG_8500.jpg",
+      alt: "Isaac dressed for Halloween",
+      title: "Isaac",
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-25.jpg",
@@ -437,10 +467,64 @@ const PhotographyPortfolio = () => {
     },
     {
       src: "/images/Portfolio-32.jpg",
-      alt: "People at the Port of Nice",
-      title: "Port of Nice II",
+      alt: "People at a crosswalk",
+      title: "Showdown",
       category: "Urban"
     },
+    {
+      src: "/images/IMG_0133.jpg",
+      alt: "Girls at a date party",
+      title: "The Date Party",
+      category: "Events"
+    },
+    // {
+    //   src: "/images/IMG_0253.jpg",
+    //   alt: "People at the date party",
+    //   title: "Spotlight",
+    //   category: "Events"
+    // },
+    // {
+    //   src: "/images/IMG_0425.jpg",
+    //   alt: "People at Game Terminal",
+    //   title: "Pose",
+    //   category: "Events"
+    // },
+    {
+      src: "/images/IMG_8504-2.jpg",
+      alt: "Davis dressed for Halloween",
+      title: "Chin Up, Shoulders Back",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_0320.jpg",
+      alt: "Arcade",
+      title: "Game Terminal",
+      category: "Fun"
+    },
+    {
+      src: "/images/IMG_9100.jpg", // !
+      alt: "Beach at Nice",
+      title: "Nice",
+      category: "Landscape"
+    },
+    {
+      src: "/images/IMG_8521-2.jpg",
+      alt: "Isaac and Davis dressed for Halloween",
+      title: "Peaky Blinders",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_9310.jpg",
+      alt: "Woman posed behind stairs",
+      title: "Green and Purple",
+      category: "Portrait"
+    },
+    // {
+    //   src: "/images/IMG_9313-2.jpg",
+    //   alt: "Woman posed",
+    //   title: "A Smile",
+    //   category: "Portrait"
+    // },
     // {
     //   src: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
     //   alt: "Landscape with mountains and lake",
