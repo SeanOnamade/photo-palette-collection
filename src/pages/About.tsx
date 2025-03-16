@@ -2,12 +2,40 @@
 import { Instagram, Mail, Phone } from "lucide-react";
 import PortfolioSidebar from "@/components/PortfolioSidebar";
 import PortfolioHero from "@/components/PortfolioHero";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PortfolioContact from "@/components/PortfolioContact";
 
 const About = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+  
+  const imageArray = [
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575733/k7rbcytphbhrwytat6wd.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575645/h3pciynsremi1cqqz3uz.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575611/mokeqxxjkubhyenaw3fk.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575609/brvqaptid5ybvhskw0l1.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575609/ygjzmpiyxpy9rkhfqgee.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575606/hsgaf27mmfzdoqsch1we.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575606/blcovwdfrgwmxmuynhyg.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575602/p39wdzwbtmex1xwokafg.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575601/tlxbxll3kb6zlu283ahy.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575597/orcntolhequhgd0o1tit.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575595/eyqbq7lekbrfdrk8bgdx.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/h6fsowqukftwt9qj3lao.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/rtw4fkoeywig55iiqiko.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575590/gsdsotaaetijemlcejph.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575501/cxrucuym3oogpk0ocerd.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/o5mrjq0rp0xjmhabzehu.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575492/po9ojlmhfviy9ptwkbwb.jpg",
+  ];
+
+  // Randomly select an image when the component mounts
+  const [backgroundImage, setBackgroundImage] = useState("");
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * imageArray.length);
+    setBackgroundImage(imageArray[randomIndex]);
   }, []);
 
   return (
@@ -18,7 +46,7 @@ const About = () => {
         <PortfolioHero
           title="About Me"
           subtitle="Capturing life's moments through my lens"
-          backgroundImage="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+          backgroundImage={backgroundImage}
         />
 
         <section className="py-16 md:py-10 px-4">
@@ -41,16 +69,16 @@ const About = () => {
                     Sean Onamade.
                   </h1>
                   <p>
-                    I'm a story-lover at the core. Photography allowes me to capture light as a standalone story, leaving it to our imaginations to extrapolate, to explore the beauty inherent to every moment. My journey began freshman year of college, where I joined the school newspaper, and since then I've been fortunate enough to photography my friends, my family, and my beautiful surroundings.
+                    I'm a story-lover at my core. Photography allowes me to capture light itself as a standalone story, leaving it to our imaginations and experiences to extrapolate and explore the beauty inherent to every moment. My journey began sophomore year of college, where I joined the school newspaper (the Vanderbilt Hustler), and since then I've been fortunate enough to photograph my friends, my family, and my ever-changing surroundings.
                   </p>
                   <p className="mt-4">
-                    My approach is still developing; I tend to focus on on composition, framing, and color. As a writer on the side, I believe photography should tell a story and evoke feeling, not just document a moment (although the latter isn't bad either!).
+                    My approach is still developing; I tend to focus on on composition, framing, and color. As not only a photographer but also a writer, I believe photography should tell a story and evoke feeling, rather than just document a moment (although the latter isn't bad either!)
                   </p>
                   <p className="mt-4">
-                    When I'm not behind the camera, I enjoy writing, making music, hitting the gym, and hanging out with friends.
+                    When I'm not behind the camera, I enjoy writing, making music, hitting the gym, building out software projects, and hanging out with my friends.
                   </p>
                   <p className="mt-4">
-                    My work has been featured in the Vanderbilt Hustler, various student organization events, and photo clubs, and I'm always looking for new challenges and collaborations that push my artistic boundaries.
+                    My work has been featured in the Vanderbilt Hustler, various student organization events, and different photo clubs, and I'm always looking for new challenges and collaborations that push my artistic boundaries. Feel free to reach out!
                   </p>
                 </div>
               </div>

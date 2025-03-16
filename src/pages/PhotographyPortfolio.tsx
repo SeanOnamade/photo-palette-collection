@@ -700,6 +700,34 @@ const PhotographyPortfolio = () => {
     );
   }, [transformedImages, selectedCategory]);
 
+  const imageArray = [
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575733/k7rbcytphbhrwytat6wd.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575645/h3pciynsremi1cqqz3uz.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575611/mokeqxxjkubhyenaw3fk.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575609/brvqaptid5ybvhskw0l1.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575609/ygjzmpiyxpy9rkhfqgee.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575606/hsgaf27mmfzdoqsch1we.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575606/blcovwdfrgwmxmuynhyg.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575602/p39wdzwbtmex1xwokafg.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575601/tlxbxll3kb6zlu283ahy.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575597/orcntolhequhgd0o1tit.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575595/eyqbq7lekbrfdrk8bgdx.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/h6fsowqukftwt9qj3lao.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575593/rtw4fkoeywig55iiqiko.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575590/gsdsotaaetijemlcejph.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575501/cxrucuym3oogpk0ocerd.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/o5mrjq0rp0xjmhabzehu.jpg",
+    "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575492/po9ojlmhfviy9ptwkbwb.jpg",
+  ];
+
+  // Randomly select an image when the component mounts
+  const [backgroundImage, setBackgroundImage] = useState("");
+
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * imageArray.length);
+    setBackgroundImage(imageArray[randomIndex]);
+  }, []);
+
   return (
     <div className="flex h-screen bg-portfolio-bg overflow-hidden">
       <PortfolioSidebar />
@@ -708,7 +736,7 @@ const PhotographyPortfolio = () => {
         <PortfolioHero
           title="Moments in Time"
           subtitle="Photography is the art of freezing moments and stories, turning real life into art."
-          backgroundImage="https://images.unsplash.com/photo-1554048612-b6a482bc67e5"
+          backgroundImage={backgroundImage}
         />
 
         <section className="py-16 md:py-24 px-4">
