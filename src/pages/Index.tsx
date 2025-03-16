@@ -55,7 +55,7 @@ const Index = () => {
       <div className="text-center relative z-10">
         <h1 className="text-4xl font-light mb-6 text-white">Sean Onamade</h1>
         <p className="text-xl text-white/80 mb-8 max-w-2xl">
-          Explore the portfolio. Build something new.
+          Explore my portfolio!
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
