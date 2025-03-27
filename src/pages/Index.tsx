@@ -62,8 +62,18 @@ const Index = () => {
             className="bg-white text-portfolio-accent hover:bg-white/90"
             onClick={() => navigate("/portfolio")}
           >
-            View Photography Portfolio
+            View Main Photography Portfolio
           </Button>
+        </div>
+        <div className="flex flex-col mt-4 sm:flex-row gap-4 justify-center">
+          <a href="https://seanonamade.pic-time.com/portfolio"
+          target = "_blank"
+          rel = "noopener noreferrer">
+            <Button 
+            className="bg-white text-portfolio-accent hover:bg-white/90"
+            
+          > View Pic-Time Portfolio</Button>
+          </a>    
         </div>
       </div>
     </div>

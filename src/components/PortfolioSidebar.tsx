@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Image, User, Menu, X, Instagram, Twitter, Facebook, Newspaper, Mail } from "lucide-react";
+import { Home, Image, User, Menu, X, Instagram, Twitter, Facebook, Newspaper, Mail, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarLinkProps {
@@ -37,6 +37,7 @@ const PortfolioSidebar = () => {
   const navigation = [
     { label: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
     { label: "Portfolio", href: "/portfolio", icon: <Image className="h-5 w-5" /> },
+    { label: "Pic-Time", href: "https://seanonamade.pic-time.com/portfolio", icon: <Camera className="h-5 w-5" />, external: true },
     { label: "About", href: "/about", icon: <User className="h-5 w-5" /> }
   ];
 
@@ -66,19 +67,36 @@ const PortfolioSidebar = () => {
       </div>
 
       <div className="flex-1 overflow-auto p-3 space-y-2">
-        {navigation.map((item) => (
-          <SidebarLink
-            key={item.label}
-            href={item.href}
-            icon={item.icon}
-            label={item.label}
-            collapsed={collapsed}
-          />
-        ))}
+        {navigation.map((item) => 
+        item.external ? (
+        <a
+          key={item.label}
+          href={item.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all " +
+              "text-portfolio-text hover:bg-gray-100 hover:text-portfolio-accent hover:scale-105",
+            collapsed && "justify-center px-2"
+          )}
+        >
+          {item.icon}
+          {!collapsed && item.label}
+        </a>
+      ) : (
+        <SidebarLink
+          key={item.label}
+          href={item.href}
+          icon={item.icon}
+          label={item.label}
+          collapsed={collapsed}
+        />
+      )
+    )}
       </div>
 
-      <div className="border-t border-gray-200 p-3">
-        <div className={cn("flex gap-3", collapsed ? "justify-center" : "")}>
+      <div className="mt-auto border-t border-gray-200 p-3">
+        <div className={cn("flex gap-0.5", collapsed ? "justify-center" : "")}>
           {socialLinks.map((item) => (
             <a 
               key={item.label}

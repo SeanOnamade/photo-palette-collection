@@ -57,7 +57,7 @@ const PortfolioContact = ({ title, email, phone, socialLinks }: PortfolioContact
                 <p className="text-sm uppercase tracking-wider text-portfolio-muted mb-1">Email</p>
                 <a
                   href={`mailto:${email}`}
-                  className="text-portfolio-text text-lg hover:text-portfolio-accent transition-colors duration-300"
+                  className="text-portfolio-text text-md hover:text-portfolio-accent transition-colors duration-300 break-all"
                 >
                   {email}
                 </a>

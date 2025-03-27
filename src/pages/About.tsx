@@ -98,7 +98,7 @@ const About = () => {
             },
             {
               name: "Email",
-              url: "sean.d.onamade@vanderbilt.edu",
+              url: "mailto:sean.d.onamade@vanderbilt.edu",
               icon: <Mail className="w-6 h-6" />
             },
             {
