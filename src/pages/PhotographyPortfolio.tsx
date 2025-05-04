@@ -109,6 +109,13 @@ const PhotographyPortfolio = () => {
     },
     {
       // src: "/images/DSCF4225.jpg",
+      src: "/images/IMG_3909.jpg",
+      alt: "Portrait of Elizabeth",
+      title: "Another Finish Line!",
+      category: "Portrait"
+    },
+    {
+      // src: "/images/DSCF4225.jpg",
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575496/dpsd5ylj93x8jqgbn1o1.jpg",
       alt: "Portrait of Sean",
       title: "Smug Mug by Nafees",
@@ -118,6 +125,12 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_8502.jpg",
       alt: "Davis dressed for Halloween",
       title: "Davis",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_4546-5.jpg",
+      alt: "Ela throwing up her hat",
+      title: "Celebration",
       category: "Portrait"
     },
     {
@@ -164,6 +177,12 @@ const PhotographyPortfolio = () => {
       alt: "Jed on his bike",
       title: "Jed",
       category: "Misc."
+    },
+    {
+      src: "/images/IMG_2036 (1).jpg",
+      alt: "Portrait of Maya",
+      title: "Glad to Be A Grad!",
+      category: "Portrait"
     },
     {
       src: "/images/IMG_2291.jpg",
@@ -221,6 +240,12 @@ const PhotographyPortfolio = () => {
       category: "Landscape"
     },
     {
+      src: "/images/_MG_9502.jpg",
+      alt: "Snow fight",
+      title: "Snow Day",
+      category: "Fun"
+    },
+    {
       src: "/images/IMG_7614.jpg",
       alt: "A woman on the swing in the park",
       title: "Swing Set",
@@ -246,6 +271,20 @@ const PhotographyPortfolio = () => {
       alt: "The Arc de Triomphe with dramatic lighting",
       title: "Triomphe",
       category: "Urban"
+    },
+    {
+      // src: "/images/ParisStock-03.jpg",
+      src: "images/IMG_9193-2.jpg",
+      alt: "Light on a downtown street",
+      title: "Winter Light",
+      category: "Urban"
+    },
+    {
+      // src: "/images/ParisStock-03.jpg",
+      src: "images/IMG_3433 (1).jpg",
+      alt: "Teyon graduation",
+      title: "In The Gardens",
+      category: "Portrait"
     },
     {
       // src: "/images/ParisStock-03.jpg",
@@ -283,6 +322,13 @@ const PhotographyPortfolio = () => {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/xephmmad7zdlqfy9t7dm.jpg",
       alt: "The Eiffel Tower",
       title: "Steel and Sky",
+      category: "Urban"
+    },
+    {
+      // src: "/images/Portfolio-02.jpg",
+      src: "/images/IMG_9223.jpg",
+      alt: "Skyscrapers in downtown Calgary",
+      title: "Skyscrapers",
       category: "Urban"
     },
     {
@@ -338,6 +384,12 @@ const PhotographyPortfolio = () => {
       alt: "Girl at the beach",
       title: "Beach",
       category: "Landscape"
+    },
+    {
+      src: "/images/IMG_3932.jpg",
+      alt: "Elizabeth graduation",
+      title: "Smile!",
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-12.jpg",
