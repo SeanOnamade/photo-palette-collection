@@ -28,6 +28,12 @@ const Index = () => {
     "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575501/cxrucuym3oogpk0ocerd.jpg",
     "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/o5mrjq0rp0xjmhabzehu.jpg",
     "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575492/po9ojlmhfviy9ptwkbwb.jpg",
+    "/images/IMG_2549.jpg",
+    "/images/IMG_2950.jpg",
+    "/images/IMG_4161-2.jpg",
+    "/images/IMG_6788.jpg",
+    "/images/IMG_9691-2.jpg",
+    "/images/IMG_6737.jpg",
   ];
 
   // Randomly select an image when the component mounts
@@ -46,7 +52,8 @@ const Index = () => {
         {backgroundImage && (
           <img
             src={backgroundImage}
-            alt="Photography studio background"
+            // src="/images/IMG_6737.jpg"
+            alt="Random selected background"
             className="w-full h-full object-cover object-center"
           />
         )}
