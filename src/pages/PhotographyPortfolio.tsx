@@ -511,7 +511,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_6602-4.jpg",
       alt: "Dap up in front of Sutherland",
       title: "Dap",
-      category: "Potrait"
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-13.jpg",
