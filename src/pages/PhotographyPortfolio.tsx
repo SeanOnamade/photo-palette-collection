@@ -52,6 +52,13 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
+      // src: "/images/Batch1--7.jpg",
+      src: "/images/IMG_5186.jpg",
+      alt: "Louis posing at Wyatt",
+      title: "Louis",
+      category: "Portrait"
+    },
+    {
       src: "/images/DecPost-10.jpg",
       alt: "Group of friends walking during Halloween",
       title: "Hallowe'en",
@@ -71,6 +78,12 @@ const PhotographyPortfolio = () => {
       category: "Landscape"
     },
     {
+      src: "/images/IMG_9691-2.jpg",
+      alt: "Marco posing",
+      title: "Marco",
+      category: "Portrait"
+    },
+    {
       src: "/images/DSC01150.jpg",
       alt: "Cheerleaders at a soccer game hyping up child fans",
       title: "Cheer Leaders",
@@ -84,6 +97,13 @@ const PhotographyPortfolio = () => {
       category: "Sports"
     },
     {
+      // src: "/images/DSC01296.jpg",
+      src: "/images/IMG_2371-2.jpg",
+      alt: "Ballet dancers on stage",
+      title: "Grand Jeté",
+      category: "Events"
+    },
+    {
       src: "/images/DSC03012-3.jpg",
       alt: "Landscape photo of Alumni Lawn",
       title: "Alumni Lawn",
@@ -93,6 +113,12 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_9418.jpg",
       alt: "Woman posed by painting",
       title: "Robe in Motion",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_6538-4.jpg",
+      alt: "Ex-Sutherland residents pose for grad",
+      title: "Sutherland",
       category: "Portrait"
     },
     {
@@ -161,6 +187,13 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
+      // src: "/images/IMG_1016.jpg",
+      src: "/images/IMG_9739-Enhanced-NR.jpg",
+      alt: "Marco posing",
+      title: "Keep Your Distance",
+      category: "Portrait"
+    },
+    {
       src: "/images/IMG_1586.jpg",
       alt: "Statue of a knight on a horse in France",
       title: "Steed",
@@ -173,10 +206,22 @@ const PhotographyPortfolio = () => {
       category: "Fun"
     },
     {
+      src: "/images/IMG_2950.jpg",
+      alt: "Ballet dancers posing",
+      title: "Strike a Pose!",
+      category: "Event"
+    },
+    {
       src: "/images/IMG_2149.jpg",
       alt: "Jed on his bike",
       title: "Jed",
       category: "Misc."
+    },
+    {
+      src: "/images/IMG_6106.jpg",
+      alt: "Marco sitting on the stairs, grad",
+      title: "Reflection",
+      category: "Portrait"
     },
     {
       src: "/images/IMG_2036 (1).jpg",
@@ -195,6 +240,12 @@ const PhotographyPortfolio = () => {
       alt: "Pinching the Eiffel Tower",
       title: "Figurine",
       category: "Urban"
+    },
+    {
+      src: "/images/IMG_6788.jpg",
+      alt: "Group posing for grad pic",
+      title: "Boys",
+      category: "Portrait"
     },
     {
       src: "/images/IMG_4497.jpg",
@@ -246,6 +297,12 @@ const PhotographyPortfolio = () => {
       category: "Fun"
     },
     {
+      src: "/images/IMG_6850-2-2.jpg",
+      alt: "Students in trees for grad",
+      title: "Climbing Trees",
+      category: "Portrait"
+    },
+    {
       src: "/images/IMG_7614.jpg",
       alt: "A woman on the swing in the park",
       title: "Swing Set",
@@ -266,11 +323,32 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
+      // src: "/images/IMG_9881-2.jpg",
+      src: "/images/IMG_5680-2-4.jpg",
+      alt: "Jocelyn posing for grad",
+      title: "Jocelyn",
+      category: "Portrait"
+    },
+    {
+      // src: "/images/IMG_9881-2.jpg",
+      src: "/images/IMG_7030.jpg",
+      alt: "Elijah posing for grad",
+      title: "Cheers",
+      category: "Portrait"
+    },
+    {
       // src: "/images/ParisStock-25.jpg",
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/k0ptpkmk7atqsoygfvgs.jpg",
       alt: "The Arc de Triomphe with dramatic lighting",
       title: "Triomphe",
       category: "Urban"
+    },
+    {
+      // src: "/images/ParisStock-25.jpg",
+      src: "/images/IMG_4924.jpg",
+      alt: "Louis posing for grad",
+      title: "Sly",
+      category: "Portrait"
     },
     {
       // src: "/images/ParisStock-03.jpg",
@@ -284,6 +362,13 @@ const PhotographyPortfolio = () => {
       src: "images/IMG_3433 (1).jpg",
       alt: "Teyon graduation",
       title: "In The Gardens",
+      category: "Portrait"
+    },
+    {
+      // src: "/images/ParisStock-03.jpg",
+      src: "images/IMG_6669-2.jpg",
+      alt: "Friend group posed for graduation",
+      title: "To New Heights",
       category: "Portrait"
     },
     {
@@ -330,6 +415,13 @@ const PhotographyPortfolio = () => {
       alt: "Skyscrapers in downtown Calgary",
       title: "Skyscrapers",
       category: "Urban"
+    },
+    {
+      // src: "/images/Portfolio-02.jpg",
+      src: "/images/IMG_6996-2.jpg",
+      alt: "Elijah grad pic on a bench",
+      title: "Elijah",
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-04.jpg",
@@ -398,6 +490,30 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
+      src: "/images/IMG_9622-2.jpg",
+      alt: "Marco posing in studio",
+      title: "Framing",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_5491.jpg",
+      alt: "Spiral grad portrait in Kissam",
+      title: "Spiral",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_4161-2.jpg",
+      alt: "Elizabeth posing near Wyatt Lawn",
+      title: "Wyatt Lawn",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_6602-4.jpg",
+      alt: "Dap up in front of Sutherland",
+      title: "Dap",
+      category: "Potrait"
+    },
+    {
       src: "/images/Portfolio-13.jpg",
       alt: "Skies at beach in Nice",
       title: "Nice Skies",
@@ -419,6 +535,12 @@ const PhotographyPortfolio = () => {
       src: "/images/Portfolio-16.jpg",
       alt: "A conversation",
       title: "What?",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_6737.jpg",
+      alt: "Group posed in front of Zeppos",
+      title: "Zeppos",
       category: "Portrait"
     },
     {
@@ -476,6 +598,18 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
+      src: "/images/IMG_3941.jpg",
+      alt: "Elizabeth posed for grad",
+      title: "Contrast",
+      category: "Portrait"
+    },
+    {
+      src: "/images/IMG_2549.jpg",
+      alt: "Ballet dancers in symmetric pose",
+      title: "Symmetry",
+      category: "Events"
+    },
+    {
       src: "/images/Portfolio-25.jpg",
       alt: "Light trails by the Arc de Triomphe",
       title: "At an Angle",
@@ -506,6 +640,12 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
+      src: "/images/IMG_6838.jpg",
+      alt: "Ayush grad pic in a tree",
+      title: "Ayush",
+      category: "Portrait"
+    },
+    {
       src: "/images/Portfolio-30.jpg",
       alt: "The Louvre Pyramid in Paris",
       title: "Strongest Shape, Weakest Material",
@@ -516,6 +656,12 @@ const PhotographyPortfolio = () => {
       alt: "Tower in Paris",
       title: "Tour d'Ivoire",
       category: "Urban"
+    },
+    {
+      src: "/images/IMG_5947.jpg",
+      alt: "Miles posing for grad",
+      title: "Miles",
+      category: "Portrait"
     },
     {
       src: "/images/Portfolio-32.jpg",
