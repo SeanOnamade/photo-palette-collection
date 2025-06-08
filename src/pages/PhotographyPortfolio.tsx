@@ -209,7 +209,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_2950.jpg",
       alt: "Ballet dancers posing",
       title: "Strike a Pose!",
-      category: "Event"
+      category: "Events"
     },
     {
       src: "/images/IMG_2149.jpg",
@@ -251,7 +251,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_4497.jpg",
       alt: "Below the Eiffel Tower at dusk",
       title: "Au-Dessous",
-      category: "Urban"
+      category: "Architecture"
     },
     // {
     //   src: "/images/IMG_5475.jpg",
@@ -276,7 +276,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_8126.jpg",
       alt: "People at the Basilique du Sacré-Cœur de Montmartre",
       title: "Pose",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       src: "/images/IMG_8768.jpg",
@@ -320,7 +320,7 @@ const PhotographyPortfolio = () => {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575595/zs6ltg0p0ihmsli8ktlm.jpg",
       alt: "The Arc de Triomphe",
       title: "Arc",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       // src: "/images/IMG_9881-2.jpg",
@@ -341,7 +341,7 @@ const PhotographyPortfolio = () => {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/k0ptpkmk7atqsoygfvgs.jpg",
       alt: "The Arc de Triomphe with dramatic lighting",
       title: "Triomphe",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       // src: "/images/ParisStock-25.jpg",
@@ -376,7 +376,7 @@ const PhotographyPortfolio = () => {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575591/fiumnmznn4o2bhqoicjf.jpg",
       alt: "The Eiffel Tower",
       title: "Needle in the Sky",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       // src: "/images/Summer-06.jpg",
@@ -407,7 +407,7 @@ const PhotographyPortfolio = () => {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575592/xephmmad7zdlqfy9t7dm.jpg",
       alt: "The Eiffel Tower",
       title: "Steel and Sky",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       // src: "/images/Portfolio-02.jpg",
@@ -649,7 +649,7 @@ const PhotographyPortfolio = () => {
       src: "/images/Portfolio-30.jpg",
       alt: "The Louvre Pyramid in Paris",
       title: "Strongest Shape, Weakest Material",
-      category: "Urban"
+      category: "Architecture"
     },
     {
       src: "/images/Portfolio-31.jpg",
