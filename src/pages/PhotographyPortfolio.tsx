@@ -84,6 +84,12 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
+      src: "/images/IMG_9874-3.jpg",
+      alt: "Car driving past AMC",
+      title: "AMC",
+      category: "Urban"
+    },
+    {
       src: "/images/DSC01150.jpg",
       alt: "Cheerleaders at a soccer game hyping up child fans",
       title: "Cheer Leaders",
@@ -160,11 +166,24 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
+      src: "/images/IMG_0472.jpg",
+      alt: "Trump Tower, Chicago",
+      title: "Trump Tower",
+      category: "Architecture"
+    },
+    {
       // src: "/images/IMG_0050.jpg",
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1741575498/vxynmg2ekoyayathaq5j.jpg",
       alt: "Portrait of a dog",
       title: "Cavalier",
       category: "Portrait"
+    },
+    {
+      // src: "/images/IMG_0050.jpg",
+      src: "/images/IMG_0093.jpg",
+      alt: "Hands in front of a building",
+      title: "Low-Angle",
+      category: "Urban"
     },
     {
       // src: "/images/IMG_0391.jpg",
@@ -218,6 +237,12 @@ const PhotographyPortfolio = () => {
       category: "Misc."
     },
     {
+      src: "/images/IMG_9921.jpg",
+      alt: "Chicago cityscape",
+      title: "Chicago",
+      category: "Urban."
+    },
+    {
       src: "/images/IMG_6106.jpg",
       alt: "Marco sitting on the stairs, grad",
       title: "Reflection",
@@ -234,6 +259,12 @@ const PhotographyPortfolio = () => {
       alt: "The Eiffel Tower",
       title: "Tour Eiffel",
       category: "Urban"
+    },
+    {
+      src: "/images/IMG_0513-2.jpg",
+      alt: "Franklin, blurred",
+      title: "Frankin",
+      category: "Portrait"
     },
     {
       src: "/images/IMG_3718.jpg",
@@ -271,6 +302,13 @@ const PhotographyPortfolio = () => {
       alt: "Denver Airport",
       title: "Layover",
       category: "Misc."
+    },
+    {
+      // src: "/images/IMG_6620.jpg",
+      src: "/images/IMG_9907.jpg",
+      alt: "Man under an umbrella",
+      title: "Slick",
+      category: "Urban"
     },
     {
       src: "/images/IMG_8126.jpg",
@@ -369,6 +407,13 @@ const PhotographyPortfolio = () => {
       src: "images/IMG_6669-2.jpg",
       alt: "Friend group posed for graduation",
       title: "To New Heights",
+      category: "Portrait"
+    },
+    {
+      // src: "/images/ParisStock-03.jpg",
+      src: "images/IMG_9919.jpg",
+      alt: "Franklin on the ferry",
+      title: "Ferry",
       category: "Portrait"
     },
     {
@@ -658,6 +703,12 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
+      src: "/images/IMG_0482.jpg",
+      alt: "Friends posing for a photo",
+      title: "Lock In!",
+      category: "Events"
+    },
+    {
       src: "/images/IMG_5947.jpg",
       alt: "Miles posing for grad",
       title: "Miles",
@@ -694,6 +745,12 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
+      src: "/images/IMG_9874-4.jpg",
+      alt: "Car driving past AMC",
+      title: "Part II",
+      category: "Urban"
+    },
+    {
       src: "/images/IMG_0320.jpg",
       alt: "Arcade",
       title: "Game Terminal",
@@ -710,6 +767,12 @@ const PhotographyPortfolio = () => {
       alt: "Isaac and Davis dressed for Halloween",
       title: "Peaky Blinders",
       category: "Portrait"
+    },
+    {
+      src: "/images/IMG_0523.jpg",
+      alt: "My friends at Anzie Blue",
+      title: "Anzie Blue",
+      category: "Events"
     },
     {
       src: "/images/IMG_9310.jpg",

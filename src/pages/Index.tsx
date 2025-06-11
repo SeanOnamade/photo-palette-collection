@@ -34,6 +34,7 @@ const Index = () => {
     "/images/IMG_6788.jpg",
     "/images/IMG_9691-2.jpg",
     "/images/IMG_6737.jpg",
+    "/images/IMG_9921.jpg",
   ];
 
   // Randomly select an image when the component mounts
