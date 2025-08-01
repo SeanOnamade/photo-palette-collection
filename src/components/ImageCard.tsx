@@ -102,13 +102,15 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       <div className="absolute inset-0 w-full h-full">
         {shouldLoad && (
           <>
-            {/* 🔥 SIMPLIFIED: Single optimized image - no overcomplicated responsive generation */}
+            {/* 🎨 LIGHTWEIGHT LOADING: Simple blur-to-clear animation */}
             <img
-              src={src} // Direct source - simpler and more reliable
+              src={src}
               alt={alt}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
+              className="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out"
               style={{
-                opacity: isLoaded ? 1 : 0,
+                filter: isLoaded ? 'blur(0px)' : 'blur(8px)',
+                opacity: isLoaded ? 1 : 0.7,
+                transform: isLoaded ? 'scale(1)' : 'scale(1.05)', // Subtle zoom effect
               }}
               onLoad={() => setIsLoaded(true)}
               loading="lazy"
