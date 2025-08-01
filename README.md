@@ -1,6 +1,8 @@
 # Photo Palette Collection
 
-A photography portfolio website showcasing the work of Sean Onamade.
+A photography portfolio website showcasing my photography work.
+
+<img width="1898" height="906" alt="image" src="https://github.com/user-attachments/assets/c075de22-997b-436d-a932-34ffb6c47d41" />
 
 ## Features
 
