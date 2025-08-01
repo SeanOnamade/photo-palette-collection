@@ -54,25 +54,21 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       
       // START DIMENSION PRELOADING: Load dimensions for first 20 images immediately
       const firstBatchImages = images.slice(0, 20).map(img => img.src);
-      preloadImageDimensionsBatch(firstBatchImages, 5, (loaded, total) => {
-        // Track progress for better UX (optional)
-        if (loaded % 5 === 0) { // Log every 5 images
-          console.log(`📐 Loaded dimensions for ${loaded}/${total} images`);
-        }
-        
-        // Update state to trigger masonry recalculation when dimensions are available
-        setDimensionsLoaded(prev => ({
-          ...prev,
-          [`batch_${Math.floor(loaded/5)}`]: true
-        }));
-      }).catch(console.warn);
+      preloadImageDimensionsBatch(firstBatchImages, 8) // 🔥 OPTIMIZED: Larger batch, no progress callbacks
+        .then(() => {
+          // 🔥 OPTIMIZED: Single state update after all dimensions loaded
+          setDimensionsLoaded(prev => ({ ...prev, initial_batch: true }));
+        })
+        .catch(() => {
+          // 🔥 OPTIMIZED: Silent fail - no console spam
+        });
       
-      // Preload next batch with medium priority after a short delay
-      const nextBatch = images.slice(8, 16).map(img => img.src);
+      // 🔥 OPTIMIZED: Preload next batch without overlap (20-30 instead of 8-16)
+      const nextBatch = images.slice(20, 30).map(img => img.src);
       if (nextBatch.length > 0) {
         setTimeout(() => {
           preloadCriticalImagesAdvanced(nextBatch, 'medium');
-        }, 1000);
+        }, 500); // 🔥 FASTER: Reduced delay from 1000ms to 500ms
       }
     }
   }, [images]);
@@ -129,7 +125,9 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
             const newChunkImages = images.slice(newChunkStart, newChunkEnd).map(img => img.src);
             
             if (newChunkImages.length > 0) {
-              preloadImageDimensionsBatch(newChunkImages, 3).catch(console.warn);
+              preloadImageDimensionsBatch(newChunkImages, 5).catch(() => {
+                // 🔥 OPTIMIZED: Silent fail - no console spam
+              });
             }
           }, 50); // 🔥 ULTRA-FAST: Minimal delay for rapid chunk loading during fast scrolling
         }

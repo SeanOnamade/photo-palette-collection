@@ -208,31 +208,11 @@ export function addCloudinaryPreconnect(): void {
   addCloudinaryPreconnectAdvanced();
 }
 
-// Performance monitoring for images with throttled logging
-let lastSlowImageWarning = 0;
-const SLOW_IMAGE_WARNING_THROTTLE = 5000; // 5 seconds
-
+// 🔥 OPTIMIZED: Lightweight performance monitoring (no console spam, no analytics)
 export function trackImagePerformance(url: string, startTime: number) {
-  if (typeof window === 'undefined') return;
-  
-  const loadTime = performance.now() - startTime;
-  
-  // Throttled logging for slow loading images to prevent console spam
-  if (loadTime > 1000) {
-    const now = Date.now();
-    if (now - lastSlowImageWarning > SLOW_IMAGE_WARNING_THROTTLE) {
-      console.warn(`Slow image loading detected: ${url} took ${loadTime.toFixed(2)}ms`);
-      lastSlowImageWarning = now;
-    }
-  }
-  
-  // Send to analytics if available (throttled by analytics system)
-  if ('gtag' in window) {
-    (window as any).gtag('event', 'image_load_time', {
-      custom_parameter_1: url.substring(url.lastIndexOf('/') + 1), // Only filename for privacy
-      value: Math.round(loadTime)
-    });
-  }
+  // Removed for performance - was causing overhead on every image load
+  // Can be re-enabled for debugging specific performance issues
+  return;
 }
 
 // Optimized intersection observer with balanced performance
@@ -332,7 +312,7 @@ export function preloadImageDimensionsBatch(
           onProgress(loadedCount, srcs.length);
         }
       } catch (error) {
-        console.warn(`Failed to load dimensions for ${src}:`, error);
+        // 🔥 OPTIMIZED: Silent fail - no console spam
         loadedCount++;
         
         if (onProgress) {

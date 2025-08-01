@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { optimizeImageUrl, generateUltraResponsiveSrcSet, generateUltraPlaceholder, trackImagePerformance, createUltraFastObserver } from "@/lib/utils";
+import { optimizeImageUrl, generateUltraResponsiveSrcSet, generateUltraPlaceholder, createUltraFastObserver } from "@/lib/utils";
 
 interface ImageCardProps {
   src: string;
@@ -27,20 +27,17 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   useEffect(() => {
     if (!shouldLoad) return;
 
-    const startTime = performance.now();
     const img = new Image();
     img.src = mainSrc || src;
 
     img.onload = () => {
       setAspectRatio(img.height / img.width);
       setIsLoaded(true);
-      
-      // Track performance for optimization insights
-      trackImagePerformance(src, startTime);
+      // 🔥 OPTIMIZED: Removed performance tracking overhead
     };
 
     img.onerror = () => {
-      console.warn('Image failed to load:', src);
+      // 🔥 OPTIMIZED: Silent fail - no console spam
       // Fallback to original source if optimized version fails
       if (img.src !== src) {
         img.src = src;
