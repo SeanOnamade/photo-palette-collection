@@ -218,11 +218,11 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // 🎯 SPIKE-FIXING: Smart masonry layout using real dimensions when available
+  // 🎯 STABLE MASONRY: Prevent reorganization on new batch loads
   const columnizedImages = useMemo(() => {
     // Use the enhanced calculator that leverages cached dimensions
     return calculateOptimalMasonryColumns(visibleImages, columnCount, true);
-  }, [columnCount, visibleImages.length, dimensionsLoaded]); // Recalculate when dimensions load
+  }, [columnCount, Math.floor(visibleImages.length / 20)]); // 🔥 FIX: Only recalculate every 20 images, not every batch
 
   // 🔥 UNIFIED MOVEMENT: Remove staggered delays for smooth unified scrolling
   const getAnimationDelay = (columnIndex: number, imageIndex: number) => {

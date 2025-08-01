@@ -1,5 +1,5 @@
 import { useState, useEffect, memo } from "react";
-import { optimizeImageUrl, generateUltraResponsiveSrcSet, generateUltraPlaceholder, createUltraFastObserver } from "@/lib/utils";
+import { createUltraFastObserver } from "@/lib/utils";
 
 interface ImageCardProps {
   src: string;
@@ -15,11 +15,8 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   const [hasBeenInView, setHasBeenInView] = useState(false); // 🔥 NEW: Persistent loading state
   const [aspectRatio, setAspectRatio] = useState(1); // Default to square
 
-  // FIXED: Use hasBeenInView to prevent image "unloading" during scroll
+  // 🔥 OPTIMIZED: Only generate URLs when actually needed
   const shouldLoad = hasBeenInView || isInView; // Once loaded, stay loaded
-  const thumbSrc = shouldLoad ? generateUltraPlaceholder(src) : "";
-  const mainSrc = shouldLoad ? optimizeImageUrl(src, 800, 85, true) : "";
-  const responsiveImages = generateUltraResponsiveSrcSet(src, true);
 
   /**
    * Preload the image once it's in view, and determine aspect ratio with performance tracking.
@@ -27,8 +24,9 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   useEffect(() => {
     if (!shouldLoad) return;
 
+    // 🔥 OPTIMIZED: Simple, efficient image loading
     const img = new Image();
-    img.src = mainSrc || src;
+    img.src = src; // Use original source - simpler and faster
 
     img.onload = () => {
       setAspectRatio(img.height / img.width);
@@ -48,7 +46,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       img.onload = null;
       img.onerror = null;
     };
-  }, [src, shouldLoad, mainSrc]);
+  }, [src, shouldLoad]);
 
   /**
    * Use ultra-aggressive Intersection Observer for fast scrolling scenarios.
@@ -104,32 +102,17 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       <div className="absolute inset-0 w-full h-full">
         {shouldLoad && (
           <>
-            {/* Ultra-low quality placeholder */}
+            {/* 🔥 SIMPLIFIED: Single optimized image - no overcomplicated responsive generation */}
             <img
-              src={thumbSrc}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
-              style={{ opacity: isLoaded ? 0 : 1, filter: "blur(8px)" }}
-              loading="lazy"
-            />
-
-            {/* Ultra-optimized main image with enhanced responsive support */}
-            <img
-              src={mainSrc}
-              srcSet={responsiveImages.srcSet || undefined}
-              sizes={responsiveImages.sizes || undefined}
+              src={src} // Direct source - simpler and more reliable
               alt={alt}
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
               style={{
                 opacity: isLoaded ? 1 : 0,
-                transform: "scale(1.0)",
-                filter: "brightness(1)",
               }}
               onLoad={() => setIsLoaded(true)}
               loading="lazy"
               decoding="async"
-              fetchpriority="high"
             />
 
             {/* Overlay for hover effect */}
