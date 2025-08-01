@@ -245,3 +245,156 @@ export function createUltraFastObserver(
     threshold: options.threshold || 0.05, // Higher threshold for better performance
   });
 }
+
+// 🎯 SPIKE-FIXING: Smart Image Dimension Caching System
+// This solves the masonry layout spikes by using real image dimensions
+
+interface ImageDimensions {
+  width: number;
+  height: number;
+  aspectRatio: number;
+  timestamp: number; // For cache expiration
+}
+
+// In-memory cache for image dimensions
+const dimensionCache = new Map<string, ImageDimensions>();
+const DIMENSION_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// Get cached dimensions for an image
+export function getCachedDimensions(src: string): ImageDimensions | null {
+  const cached = dimensionCache.get(src);
+  
+  if (cached) {
+    // Check if cache is still valid
+    const isExpired = Date.now() - cached.timestamp > DIMENSION_CACHE_TTL;
+    if (!isExpired) {
+      return cached;
+    } else {
+      // Remove expired cache
+      dimensionCache.delete(src);
+    }
+  }
+  
+  return null;
+}
+
+// Pre-load image dimensions and cache them
+export function preloadImageDimensions(src: string): Promise<ImageDimensions> {
+  // Check cache first
+  const cached = getCachedDimensions(src);
+  if (cached) {
+    return Promise.resolve(cached);
+  }
+  
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = () => {
+      const dimensions: ImageDimensions = {
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        aspectRatio: img.naturalHeight / img.naturalWidth,
+        timestamp: Date.now()
+      };
+      
+      // Cache the dimensions
+      dimensionCache.set(src, dimensions);
+      resolve(dimensions);
+    };
+    
+    img.onerror = () => {
+      reject(new Error(`Failed to load image: ${src}`));
+    };
+    
+    // Use a tiny optimized version just for dimensions (faster loading)
+    img.src = optimizeImageUrl(src, 50, 50); // Very small image just for dimensions
+  });
+}
+
+// Batch preload dimensions for multiple images
+export function preloadImageDimensionsBatch(
+  srcs: string[], 
+  batchSize: number = 5, 
+  onProgress?: (loaded: number, total: number) => void
+): Promise<Map<string, ImageDimensions>> {
+  const results = new Map<string, ImageDimensions>();
+  let loadedCount = 0;
+  
+  // Process images in batches to avoid overwhelming the browser
+  const processBatch = async (batch: string[]): Promise<void> => {
+    const promises = batch.map(async (src) => {
+      try {
+        const dimensions = await preloadImageDimensions(src);
+        results.set(src, dimensions);
+        loadedCount++;
+        
+        if (onProgress) {
+          onProgress(loadedCount, srcs.length);
+        }
+      } catch (error) {
+        console.warn(`Failed to load dimensions for ${src}:`, error);
+        loadedCount++;
+        
+        if (onProgress) {
+          onProgress(loadedCount, srcs.length);
+        }
+      }
+    });
+    
+    await Promise.all(promises);
+  };
+  
+  return new Promise(async (resolve) => {
+    // Process all batches
+    for (let i = 0; i < srcs.length; i += batchSize) {
+      const batch = srcs.slice(i, i + batchSize);
+      await processBatch(batch);
+      
+      // Small delay between batches to prevent overwhelming
+      if (i + batchSize < srcs.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+    
+    resolve(results);
+  });
+}
+
+// Enhanced masonry column calculator using real dimensions when available
+export function calculateOptimalMasonryColumns(
+  images: Array<{ src: string; [key: string]: any }>,
+  columnCount: number,
+  useRealDimensions: boolean = true
+): Array<Array<{ src: string; [key: string]: any }>> {
+  if (columnCount <= 0 || images.length === 0) return [];
+  
+  const cols: Array<Array<{ src: string; [key: string]: any }>> = Array.from({ length: columnCount }, () => []);
+  const colHeights: number[] = Array(columnCount).fill(0);
+  
+  images.forEach((image, index) => {
+    let aspectRatio = 1.2; // Default
+    
+    if (useRealDimensions) {
+      const dimensions = getCachedDimensions(image.src);
+      if (dimensions) {
+        aspectRatio = dimensions.aspectRatio;
+      } else {
+        // Use improved estimation pattern for uncached images
+        const patterns = [1.0, 1.4, 0.8, 1.2, 1.6, 0.9, 1.1, 1.3, 1.5, 0.7];
+        aspectRatio = patterns[index % patterns.length];
+      }
+    }
+    
+    // Normalize extreme ratios
+    aspectRatio = Math.min(Math.max(aspectRatio, 0.5), 2.5);
+    
+    // Find the shortest column
+    const shortestColumnIndex = colHeights.indexOf(Math.min(...colHeights));
+    
+    // Add image to shortest column
+    cols[shortestColumnIndex].push(image);
+    colHeights[shortestColumnIndex] += aspectRatio + 0.1; // Add spacing
+  });
+  
+  return cols;
+}

@@ -12,18 +12,20 @@ interface ImageCardProps {
 const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [hasBeenInView, setHasBeenInView] = useState(false); // 🔥 NEW: Persistent loading state
   const [aspectRatio, setAspectRatio] = useState(1); // Default to square
 
-  // FIXED: Optimized image sources with conservative settings for reliability
-  const thumbSrc = isInView ? generateUltraPlaceholder(src) : "";
-  const mainSrc = isInView ? optimizeImageUrl(src, 800, 85, true) : ""; // Conservative quality for reliability
+  // FIXED: Use hasBeenInView to prevent image "unloading" during scroll
+  const shouldLoad = hasBeenInView || isInView; // Once loaded, stay loaded
+  const thumbSrc = shouldLoad ? generateUltraPlaceholder(src) : "";
+  const mainSrc = shouldLoad ? optimizeImageUrl(src, 800, 85, true) : "";
   const responsiveImages = generateUltraResponsiveSrcSet(src, true);
 
   /**
    * Preload the image once it's in view, and determine aspect ratio with performance tracking.
    */
   useEffect(() => {
-    if (!isInView) return;
+    if (!shouldLoad) return;
 
     const startTime = performance.now();
     const img = new Image();
@@ -49,22 +51,25 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       img.onload = null;
       img.onerror = null;
     };
-  }, [src, isInView, mainSrc]);
+  }, [src, shouldLoad, mainSrc]);
 
   /**
-   * Use optimized Intersection Observer to detect when the element is in view.
+   * Use ultra-aggressive Intersection Observer for fast scrolling scenarios.
+   * Once triggered, images stay loaded for smooth scrolling experience.
    */
   useEffect(() => {
     const observer = createUltraFastObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsInView(true);
-          observer.disconnect();
+          setHasBeenInView(true); // 🔥 NEW: Mark as permanently loaded
+          // Don't disconnect! Keep observer alive for smooth scrolling
+          // observer.disconnect(); // ❌ REMOVED: This was causing reload issues
         }
       },
       {
-        rootMargin: "300px", // Balanced loading distance for smooth scrolling
-        threshold: 0.05 // Slightly higher threshold for better performance
+        rootMargin: "1500px", // 🔥 ULTRA-AGGRESSIVE: Huge margin for fast scrolling
+        threshold: 0 // 🔥 MAXIMUM SENSITIVITY: Detect as soon as any pixel appears
       }
     );
 
@@ -94,12 +99,13 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       style={{
         // Reserve vertical space using the aspect ratio
         paddingBottom: `${aspectRatio * 100}%`,
-        transition: "transform 0.3s ease, opacity 0.5s ease",
-        opacity: isInView ? 1 : 0,
+        // 🔥 UNIFIED MOVEMENT: Reduce transitions for smoother unified scrolling
+        transition: "opacity 0.2s ease", // Only opacity, faster transition
+        opacity: shouldLoad ? 1 : 0,
       }}
     >
       <div className="absolute inset-0 w-full h-full">
-        {isInView && (
+        {shouldLoad && (
           <>
             {/* Ultra-low quality placeholder */}
             <img
@@ -139,7 +145,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       </div>
 
       {/* Image info overlay */}
-      {isInView && (title || category) && (
+      {shouldLoad && (title || category) && (
         <div
           className="
             absolute bottom-0 left-0 right-0 

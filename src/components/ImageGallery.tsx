@@ -2,7 +2,13 @@ import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import ImageCard from "./ImageCard";
-import { preloadCriticalImagesAdvanced, addCloudinaryPreconnectAdvanced } from "@/lib/utils";
+import { 
+  preloadCriticalImagesAdvanced, 
+  addCloudinaryPreconnectAdvanced,
+  preloadImageDimensionsBatch,
+  calculateOptimalMasonryColumns,
+  optimizeImageUrl 
+} from "@/lib/utils";
 
 interface Image {
   src: string;
@@ -27,24 +33,39 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const chunkSize = 10; // Increased chunk size for better initial load
   const loadingRef = useRef<HTMLDivElement>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [preloadedImages, setPreloadedImages] = useState<Record<string, boolean>>({});
+  const [dimensionsLoaded, setDimensionsLoaded] = useState<Record<string, boolean>>({});
 
   // Reset visible chunks when images change (e.g., when filtering)
   useEffect(() => {
     setVisibleChunks(1);
   }, [images]);
 
-  // ULTRA-AGGRESSIVE performance optimizations: enhanced preconnect and preload
+  // 🎯 SPIKE FIX: Smart dimension preloading for better masonry layout
   useEffect(() => {
     // Add enhanced Cloudinary preconnect with DNS prefetch for faster resolution
     addCloudinaryPreconnectAdvanced();
     
-    // Preload first 8 images (above the fold) with ultra-aggressive settings
+    // Preload first 8 images (above the fold) with critical priority
     const criticalImages = images.slice(0, Math.min(8, images.length)).map(img => img.src);
     
     if (criticalImages.length > 0) {
       // Use advanced preloading with high priority for critical images
       preloadCriticalImagesAdvanced(criticalImages, 'high');
+      
+      // START DIMENSION PRELOADING: Load dimensions for first 20 images immediately
+      const firstBatchImages = images.slice(0, 20).map(img => img.src);
+      preloadImageDimensionsBatch(firstBatchImages, 5, (loaded, total) => {
+        // Track progress for better UX (optional)
+        if (loaded % 5 === 0) { // Log every 5 images
+          console.log(`📐 Loaded dimensions for ${loaded}/${total} images`);
+        }
+        
+        // Update state to trigger masonry recalculation when dimensions are available
+        setDimensionsLoaded(prev => ({
+          ...prev,
+          [`batch_${Math.floor(loaded/5)}`]: true
+        }));
+      }).catch(console.warn);
       
       // Preload next batch with medium priority after a short delay
       const nextBatch = images.slice(8, 16).map(img => img.src);
@@ -101,14 +122,23 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
           loadingTimeout = window.setTimeout(() => {
             setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
             loadingTimeout = undefined;
-          }, 150); // Reduced delay for better responsiveness
+            
+            // Load dimensions for new chunk
+            const newChunkStart = visibleChunks * chunkSize;
+            const newChunkEnd = Math.min(newChunkStart + chunkSize, images.length);
+            const newChunkImages = images.slice(newChunkStart, newChunkEnd).map(img => img.src);
+            
+            if (newChunkImages.length > 0) {
+              preloadImageDimensionsBatch(newChunkImages, 3).catch(console.warn);
+            }
+          }, 50); // 🔥 ULTRA-FAST: Minimal delay for rapid chunk loading during fast scrolling
         }
       }
     };
 
     const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '400px', // Reduced from 800px for better scroll performance
-      threshold: 0.1 // Increased threshold to reduce sensitivity
+      rootMargin: '1200px', // 🔥 INCREASED: Much larger margin for fast scrolling chunk loading
+      threshold: 0.05 // 🔥 REDUCED: More sensitive to detect need for more images sooner
     });
 
     if (loadingRef.current) {
@@ -139,19 +169,12 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
       const nextIndex = (selectedIndex + 1) % images.length;
       const prevIndex = (selectedIndex - 1 + images.length) % images.length;
       
-      // Mark these images as needing preloading
-      setPreloadedImages(prev => ({
-        ...prev,
-        [images[nextIndex].src]: true,
-        [images[prevIndex].src]: true
-      }));
-      
-      // Preload next and previous images
+      // Preload next and previous images with optimization
       const nextImg = new Image();
-      nextImg.src = images[nextIndex].src;
+      nextImg.src = optimizeImageUrl(images[nextIndex].src, 1600, 90);
       
       const prevImg = new Image();
-      prevImg.src = images[prevIndex].src;
+      prevImg.src = optimizeImageUrl(images[prevIndex].src, 1600, 90);
     }
   }, [selectedImage, selectedIndex, images]);
 
@@ -197,41 +220,16 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // Stable masonry layout - prioritizes UX stability over perfect column balance
-  // ONLY recalculates on major layout changes to prevent jarring reorganization
+  // 🎯 SPIKE-FIXING: Smart masonry layout using real dimensions when available
   const columnizedImages = useMemo(() => {
-    if (columnCount <= 0 || visibleImages.length === 0) return [];
-    
-    // Simple, stable column distribution with minimal rebalancing
-    const cols: Image[][] = Array.from({ length: columnCount }, () => []);
-    const colHeights: number[] = Array(columnCount).fill(0);
-    
-    // Simple approach: Distribute images to shortest column (classic masonry)
-    visibleImages.forEach((image, index) => {
-      // For first batch, use round-robin for even start
-      if (index < columnCount) {
-        cols[index].push(image);
-        colHeights[index] += 1.2; // Standard estimated height
-        return;
-      }
-      
-      // Find shortest column and add image there
-      const shortestColumnIndex = colHeights.indexOf(Math.min(...colHeights));
-      cols[shortestColumnIndex].push(image);
-      
-      // Simple height estimation based on position pattern
-      const heightVariation = [1.0, 1.3, 0.9, 1.1, 1.4, 0.8, 1.2, 1.1];
-      const estimatedHeight = heightVariation[index % heightVariation.length];
-      colHeights[shortestColumnIndex] += estimatedHeight;
-    });
-    
-    return cols;
-  }, [columnCount, Math.floor(visibleImages.length / 10)]); // MUCH less frequent recalculation
+    // Use the enhanced calculator that leverages cached dimensions
+    return calculateOptimalMasonryColumns(visibleImages, columnCount, true);
+  }, [columnCount, visibleImages.length, dimensionsLoaded]); // Recalculate when dimensions load
 
-  // Animation classes for gallery items
+  // 🔥 UNIFIED MOVEMENT: Remove staggered delays for smooth unified scrolling
   const getAnimationDelay = (columnIndex: number, imageIndex: number) => {
-    const delay = columnIndex * 50 + imageIndex * 30;
-    return `${delay}ms`;
+    // For smooth unified movement during scroll, minimize animation delays
+    return '0ms'; // All items animate together for unified column movement
   };
 
   return (
@@ -251,10 +249,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
             key={`column-${columnIndex}`} 
             className="flex flex-col space-y-3"
             style={{
-              // Reduced transitions during scroll for better performance
-              transition: 'transform 0.2s ease-out',
+              // 🔥 UNIFIED MOVEMENT: Remove column transitions for synchronized scrolling
+              // transition: 'transform 0.2s ease-out', // REMOVED: Caused staggered movement
               minHeight: '200px', // Prevent collapse during rebalancing
-              willChange: 'auto' // Optimize for scroll performance
+              willChange: 'transform' // 🔥 OPTIMIZED: Hint browser for smooth scrolling
             }}
           >
             {column.map((image, imageIndex) => {
@@ -264,9 +262,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
               return (
                 <div 
                   key={`${image.src}-${imageIndex}`}
-                  className="animate-fade-in"
+                  // 🔥 UNIFIED MOVEMENT: Remove fade-in animation for synchronized scrolling
+                  // className="animate-fade-in" // REMOVED: Caused staggered movement
                   style={{ 
-                    animationDelay: getAnimationDelay(columnIndex, imageIndex),
+                    // animationDelay: getAnimationDelay(columnIndex, imageIndex), // Already returns '0ms'
                   }}
                 >
                   <ImageCard
@@ -324,10 +323,11 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                 </button>
                 
                 <img
-                  src={selectedImage.src}
+                  src={optimizeImageUrl(selectedImage.src, 1600, 90)}
                   alt={selectedImage.alt}
-                  className="max-h-full max-w-full object-contain animate-fade-in"
-                  style={{ maxHeight: '80vh' }}
+                  className="max-h-full max-w-full object-contain"
+                  loading="eager"
+                  fetchpriority="high"
                 />
                 
                 <button 
