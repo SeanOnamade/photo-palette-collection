@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { optimizeImageUrl, generateUltraResponsiveSrcSet, generateUltraPlaceholder, trackImagePerformance, createUltraFastObserver } from "@/lib/utils";
 
 interface ImageCardProps {
   src: string;
@@ -13,30 +14,48 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
   const [isInView, setIsInView] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1); // Default to square
 
+  // FIXED: Optimized image sources with conservative settings for reliability
+  const thumbSrc = isInView ? generateUltraPlaceholder(src) : "";
+  const mainSrc = isInView ? optimizeImageUrl(src, 800, 85, true) : ""; // Conservative quality for reliability
+  const responsiveImages = generateUltraResponsiveSrcSet(src, true);
+
   /**
-   * Preload the image once it's in view, and determine aspect ratio.
+   * Preload the image once it's in view, and determine aspect ratio with performance tracking.
    */
   useEffect(() => {
     if (!isInView) return;
 
+    const startTime = performance.now();
     const img = new Image();
-    img.src = src;
+    img.src = mainSrc || src;
 
     img.onload = () => {
       setAspectRatio(img.height / img.width);
       setIsLoaded(true);
+      
+      // Track performance for optimization insights
+      trackImagePerformance(src, startTime);
+    };
+
+    img.onerror = () => {
+      console.warn('Image failed to load:', src);
+      // Fallback to original source if optimized version fails
+      if (img.src !== src) {
+        img.src = src;
+      }
     };
 
     return () => {
       img.onload = null;
+      img.onerror = null;
     };
-  }, [src, isInView]);
+  }, [src, isInView, mainSrc]);
 
   /**
-   * Use Intersection Observer to detect when the element is in view.
+   * Use optimized Intersection Observer to detect when the element is in view.
    */
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const observer = createUltraFastObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsInView(true);
@@ -44,41 +63,28 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
         }
       },
       {
-        threshold: 0.01,
-        rootMargin: "800px", // Start loading images well before they're visible
+        rootMargin: "300px", // Balanced loading distance for smooth scrolling
+        threshold: 0.05 // Slightly higher threshold for better performance
       }
     );
 
     // Create a stable ID from the src
     const elementId = `image-${src.replace(/[^\w]/g, "-")}`;
-    const currentElement = document.getElementById(elementId);
+    let currentElement = document.getElementById(elementId);
 
     if (currentElement) {
       observer.observe(currentElement);
     }
 
     return () => {
-      if (currentElement) {
-        observer.unobserve(currentElement);
+      // Proper cleanup - get element again to ensure it exists
+      const cleanupElement = document.getElementById(elementId);
+      if (cleanupElement) {
+        observer.unobserve(cleanupElement);
       }
+      observer.disconnect(); // Ensure observer is fully cleaned up
     };
   }, [src]);
-
-  /**
-   * For now, we simply return the original URL. 
-   * If you want true local image resizing/compression,
-   * you'd need a build step or a server to generate smaller images.
-   */
-  const generateOptimizedImageUrl = (url: string, _width: number, _quality: number): string => {
-    // For local images, we can't convert format on the fly without a server or external service.
-    return url;
-  };
-
-  // Low-quality placeholder
-  const thumbSrc = isInView ? generateOptimizedImageUrl(src, 10, 5) : "";
-
-  // Main image
-  const mainSrc = isInView ? generateOptimizedImageUrl(src, 600, 80) : "";
 
   return (
     <div
@@ -95,21 +101,23 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
       <div className="absolute inset-0 w-full h-full">
         {isInView && (
           <>
-            {/* Low-quality placeholder */}
+            {/* Ultra-low quality placeholder */}
             <img
               src={thumbSrc}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-              style={{ opacity: isLoaded ? 0 : 1, filter: "blur(10px)" }}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
+              style={{ opacity: isLoaded ? 0 : 1, filter: "blur(8px)" }}
               loading="lazy"
             />
 
-            {/* Main image */}
+            {/* Ultra-optimized main image with enhanced responsive support */}
             <img
               src={mainSrc}
+              srcSet={responsiveImages.srcSet || undefined}
+              sizes={responsiveImages.sizes || undefined}
               alt={alt}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
               style={{
                 opacity: isLoaded ? 1 : 0,
                 transform: "scale(1.0)",
@@ -118,6 +126,7 @@ const ImageCard = ({ src, alt, title, category, onClick }: ImageCardProps) => {
               onLoad={() => setIsLoaded(true)}
               loading="lazy"
               decoding="async"
+              fetchpriority="high"
             />
 
             {/* Overlay for hover effect */}

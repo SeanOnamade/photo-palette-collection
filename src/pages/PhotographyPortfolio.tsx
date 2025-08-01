@@ -240,7 +240,7 @@ const PhotographyPortfolio = () => {
       src: "/images/IMG_9921.jpg",
       alt: "Chicago cityscape",
       title: "Chicago",
-      category: "Urban."
+      category: "Urban"
     },
     {
       src: "/images/IMG_6106.jpg",

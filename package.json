@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "build:dev": "vite build --mode development", 
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "analyze-images": "echo 'Image Analysis:' && powershell -Command \"$total = (Get-ChildItem 'public/images' -Include *.jpg,*.jpeg,*.png -Recurse | Where-Object { $_.DirectoryName -notlike '*optimized*' } | Measure-Object -Property Length -Sum).Sum; Write-Host 'Total unoptimized images size:' ([math]::Round($total/1MB,2)) 'MB'; Write-Host 'Estimated optimized size with Cloudinary:' ([math]::Round($total*0.4/1MB,2)) 'MB (60% reduction)'\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
