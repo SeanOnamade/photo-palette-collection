@@ -20,7 +20,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [columnCount, setColumnCount] = useState(columns);
-  const [visibleCount, setVisibleCount] = useState(20); // Start with just 20 images
+  const [visibleCount, setVisibleCount] = useState(24); // Reduced to 24 for smoother scrolling
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Adjust columns based on viewport width
@@ -45,18 +45,21 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [columns]);
 
-  // Simple progressive loading - load more in larger batches
+  // Simple progressive loading - load more in batches with better throttling
   useEffect(() => {
     if (visibleCount >= images.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          // Load 30 images at a time for faster scrolling
-          setVisibleCount(prev => Math.min(prev + 30, images.length));
+          // Load 20 images at a time (reduced from 30)
+          setVisibleCount(prev => Math.min(prev + 20, images.length));
         }
       },
-      { rootMargin: '800px' } // Load earlier
+      { 
+        rootMargin: '600px', // Reduced from 800px to prevent premature loading
+        threshold: 0.01 // Only trigger when actually near
+      }
     );
 
     if (loadMoreRef.current) {
@@ -65,6 +68,31 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
 
     return () => observer.disconnect();
   }, [visibleCount, images.length]);
+
+  // Preload first batch of images for instant display
+  useEffect(() => {
+    if (images.length === 0) return;
+    
+    // Preload only first 4 critical images (reduced from 8)
+    const criticalImages = images.slice(0, 4);
+    criticalImages.forEach((img, index) => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = img.src;
+      link.fetchPriority = 'high';
+      document.head.appendChild(link);
+    });
+    
+    return () => {
+      // Cleanup preload links when component unmounts
+      document.querySelectorAll('link[rel="preload"][as="image"]').forEach(link => {
+        if (criticalImages.some(img => img.src === link.getAttribute('href'))) {
+          link.remove();
+        }
+      });
+    };
+  }, [images]);
 
   // Only show visible images for better initial load
   const visibleImages = useMemo(() => {
@@ -134,6 +162,8 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
             >
               {column.map((image, imageIndex) => {
                 const globalIndex = images.findIndex(img => img.src === image.src);
+                // Mark first 4 images as priority for instant loading
+                const isPriority = globalIndex < 4;
                 return (
                   <ImageCard
                     key={`${image.src}-${imageIndex}`}
@@ -142,6 +172,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                     title={image.title}
                     category={image.category}
                     onClick={() => openLightbox(image, globalIndex)}
+                    priority={isPriority}
                   />
                 );
               })}
@@ -186,7 +217,10 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                 </button>
                 
                 <img
-                  src={optimizeImageUrl(selectedImage.src, 1600, 90)}
+                  src={selectedImage.src.includes('cloudinary.com') 
+                    ? selectedImage.src.replace('/upload/', '/upload/w_1920,q_85,f_auto/')
+                    : selectedImage.src
+                  }
                   alt={selectedImage.alt}
                   className="max-h-full max-w-full object-contain"
                 />
