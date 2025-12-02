@@ -1,22 +1,14 @@
-import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback, memo, useRef } from "react";
+import ImageCard from "./ImageCard";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import ImageCard from "./ImageCard";
-import { 
-  preloadCriticalImagesAdvanced, 
-  addCloudinaryPreconnectAdvanced,
-  preloadImageDimensionsBatch,
-  calculateOptimalMasonryColumns,
-  optimizeImageUrl 
-} from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/utils";
 
 interface Image {
   src: string;
   alt: string;
   title?: string;
   category?: string;
-  height?: number;
-  width?: number;
 }
 
 interface ImageGalleryProps {
@@ -26,52 +18,10 @@ interface ImageGalleryProps {
 
 const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [columnCount, setColumnCount] = useState(columns);
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const [visibleChunks, setVisibleChunks] = useState(1);
-  const chunkSize = 10; // Increased chunk size for better initial load
-  const loadingRef = useRef<HTMLDivElement>(null);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [dimensionsLoaded, setDimensionsLoaded] = useState<Record<string, boolean>>({});
-
-  // Reset visible chunks when images change (e.g., when filtering)
-  useEffect(() => {
-    setVisibleChunks(1);
-  }, [images]);
-
-  // 🎯 SPIKE FIX: Smart dimension preloading for better masonry layout
-  useEffect(() => {
-    // Add enhanced Cloudinary preconnect with DNS prefetch for faster resolution
-    addCloudinaryPreconnectAdvanced();
-    
-    // Preload first 8 images (above the fold) with critical priority
-    const criticalImages = images.slice(0, Math.min(8, images.length)).map(img => img.src);
-    
-    if (criticalImages.length > 0) {
-      // Use advanced preloading with high priority for critical images
-      preloadCriticalImagesAdvanced(criticalImages, 'high');
-      
-      // START DIMENSION PRELOADING: Load dimensions for first 20 images immediately
-      const firstBatchImages = images.slice(0, 20).map(img => img.src);
-      preloadImageDimensionsBatch(firstBatchImages, 8) // 🔥 OPTIMIZED: Larger batch, no progress callbacks
-        .then(() => {
-          // 🔥 OPTIMIZED: Single state update after all dimensions loaded
-          setDimensionsLoaded(prev => ({ ...prev, initial_batch: true }));
-        })
-        .catch(() => {
-          // 🔥 OPTIMIZED: Silent fail - no console spam
-        });
-      
-      // 🔥 OPTIMIZED: Preload next batch without overlap (20-30 instead of 8-16)
-      const nextBatch = images.slice(20, 30).map(img => img.src);
-      if (nextBatch.length > 0) {
-        setTimeout(() => {
-          preloadCriticalImagesAdvanced(nextBatch, 'medium');
-        }, 500); // 🔥 FASTER: Reduced delay from 1000ms to 500ms
-      }
-    }
-  }, [images]);
+  const [visibleCount, setVisibleCount] = useState(20); // Start with just 20 images
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Adjust columns based on viewport width
   useEffect(() => {
@@ -95,99 +45,53 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener("resize", handleResize);
   }, [columns]);
 
-  // Memoize expensive calculations first - MUST be before useEffect that uses them
-  const memoizedImageCount = useMemo(() => images.length, [images.length]);
-  const memoizedChunkCount = useMemo(() => Math.ceil(memoizedImageCount / chunkSize), [memoizedImageCount, chunkSize]);
-
-  // Progressive loading with optimized scroll performance and proper cleanup
+  // Simple progressive loading - load more in larger batches
   useEffect(() => {
-    // Use useRef to persist timeout across renders and prevent memory leaks
-    let loadingTimeout: number | undefined;
-    
-    const loadMoreImages = (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries;
-      if (entry.isIntersecting) {
-        // Only load more if we haven't loaded all images yet
-        if (visibleChunks * chunkSize < memoizedImageCount) {
-          // Clear any pending load to prevent excessive calls during fast scroll
-          if (loadingTimeout) {
-            window.clearTimeout(loadingTimeout);
-            loadingTimeout = undefined;
-          }
-          
-          loadingTimeout = window.setTimeout(() => {
-            setVisibleChunks(prev => Math.min(prev + 1, Math.ceil(images.length / chunkSize)));
-            loadingTimeout = undefined;
-            
-            // Load dimensions for new chunk
-            const newChunkStart = visibleChunks * chunkSize;
-            const newChunkEnd = Math.min(newChunkStart + chunkSize, images.length);
-            const newChunkImages = images.slice(newChunkStart, newChunkEnd).map(img => img.src);
-            
-            if (newChunkImages.length > 0) {
-              preloadImageDimensionsBatch(newChunkImages, 5).catch(() => {
-                // 🔥 OPTIMIZED: Silent fail - no console spam
-              });
-            }
-          }, 50); // 🔥 ULTRA-FAST: Minimal delay for rapid chunk loading during fast scrolling
+    if (visibleCount >= images.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // Load 30 images at a time for faster scrolling
+          setVisibleCount(prev => Math.min(prev + 30, images.length));
         }
-      }
-    };
+      },
+      { rootMargin: '800px' } // Load earlier
+    );
 
-    const observer = new IntersectionObserver(loadMoreImages, {
-      rootMargin: '1200px', // 🔥 INCREASED: Much larger margin for fast scrolling chunk loading
-      threshold: 0.05 // 🔥 REDUCED: More sensitive to detect need for more images sooner
-    });
-
-    if (loadingRef.current) {
-      observer.observe(loadingRef.current);
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
     }
 
-    return () => {
-      // Proper cleanup to prevent memory leaks
-      if (loadingTimeout) {
-        window.clearTimeout(loadingTimeout);
-        loadingTimeout = undefined;
-      }
-      if (loadingRef.current) {
-        observer.unobserve(loadingRef.current);
-      }
-      observer.disconnect(); // Ensure observer is fully cleaned up
-    };
-  }, [visibleChunks, memoizedImageCount, chunkSize]);
+    return () => observer.disconnect();
+  }, [visibleCount, images.length]);
 
-  // Get visible images for current chunk with memoization
+  // Only show visible images for better initial load
   const visibleImages = useMemo(() => {
-    return images.slice(0, visibleChunks * chunkSize);
-  }, [images, visibleChunks, chunkSize]);
+    return images.slice(0, visibleCount);
+  }, [images, visibleCount]);
 
-  // Preload next and previous images when lightbox is open
-  useEffect(() => {
-    if (selectedImage && selectedIndex >= 0) {
-      const nextIndex = (selectedIndex + 1) % images.length;
-      const prevIndex = (selectedIndex - 1 + images.length) % images.length;
-      
-      // Preload next and previous images with optimization
-      const nextImg = new Image();
-      nextImg.src = optimizeImageUrl(images[nextIndex].src, 1600, 90);
-      
-      const prevImg = new Image();
-      prevImg.src = optimizeImageUrl(images[prevIndex].src, 1600, 90);
-    }
-  }, [selectedImage, selectedIndex, images]);
+  // Simple masonry layout - distribute visible images evenly across columns
+  const columnizedImages = useMemo(() => {
+    const cols: Image[][] = Array.from({ length: columnCount }, () => []);
+    
+    // Simple round-robin distribution
+    visibleImages.forEach((image, index) => {
+      cols[index % columnCount].push(image);
+    });
+    
+    return cols;
+  }, [visibleImages, columnCount]);
 
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
     setSelectedIndex(index);
-    setIsLightboxOpen(true);
-    // Disable scroll when lightbox is open
     document.body.style.overflow = 'hidden';
   }, []);
 
   const closeLightbox = useCallback(() => {
     setSelectedImage(null);
-    setIsLightboxOpen(false);
-    // Re-enable scroll when lightbox is closed
+    setSelectedIndex(-1);
     document.body.style.overflow = '';
   }, []);
 
@@ -218,89 +122,50 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, navigateImage, closeLightbox]);
 
-  // 🎯 STABLE MASONRY: Prevent reorganization on new batch loads
-  const columnizedImages = useMemo(() => {
-    // Use the enhanced calculator that leverages cached dimensions
-    return calculateOptimalMasonryColumns(visibleImages, columnCount, true);
-  }, [columnCount, Math.floor(visibleImages.length / 20)]); // 🔥 FIX: Only recalculate every 20 images, not every batch
-
-  // 🔥 UNIFIED MOVEMENT: Remove staggered delays for smooth unified scrolling
-  const getAnimationDelay = (columnIndex: number, imageIndex: number) => {
-    // For smooth unified movement during scroll, minimize animation delays
-    return '0ms'; // All items animate together for unified column movement
-  };
-
   return (
     <>
-      {/* Gallery grid with improved animation and balanced column heights */}
-      <div 
-        ref={galleryRef}
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
-        style={{ 
-          opacity: images.length > 0 ? 1 : 0, 
-          transition: 'opacity 0.5s ease',
-          alignItems: 'start' // Ensure columns start at the same level
-        }}
-      >
-        {columnizedImages.map((column, columnIndex) => (
-          <div 
-            key={`column-${columnIndex}`} 
-            className="flex flex-col space-y-3"
-            style={{
-              // 🔥 UNIFIED MOVEMENT: Remove column transitions for synchronized scrolling
-              // transition: 'transform 0.2s ease-out', // REMOVED: Caused staggered movement
-              minHeight: '200px', // Prevent collapse during rebalancing
-              willChange: 'transform' // 🔥 OPTIMIZED: Hint browser for smooth scrolling
-            }}
-          >
-            {column.map((image, imageIndex) => {
-              // Calculate the global index
-              const globalIndex = visibleImages.indexOf(image);
-              
-              return (
-                <div 
-                  key={`${image.src}-${imageIndex}`}
-                  // 🔥 UNIFIED MOVEMENT: Remove fade-in animation for synchronized scrolling
-                  // className="animate-fade-in" // REMOVED: Caused staggered movement
-                  style={{ 
-                    // animationDelay: getAnimationDelay(columnIndex, imageIndex), // Already returns '0ms'
-                  }}
-                >
+      {/* Simple gallery grid with progressive loading */}
+      <div className="w-full">
+        <div className="flex gap-4 items-start">
+          {columnizedImages.map((column, columnIndex) => (
+            <div
+              key={columnIndex}
+              className="flex-1 flex flex-col gap-4"
+            >
+              {column.map((image, imageIndex) => {
+                const globalIndex = images.findIndex(img => img.src === image.src);
+                return (
                   <ImageCard
+                    key={`${image.src}-${imageIndex}`}
                     src={image.src}
                     alt={image.alt}
                     title={image.title}
                     category={image.category}
                     onClick={() => openLightbox(image, globalIndex)}
                   />
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        {/* Loading trigger - simple and clean */}
+        {visibleCount < images.length && (
+          <div ref={loadMoreRef} className="w-full py-8 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Show loading indicator for more images */}
-      {visibleImages.length < memoizedImageCount && (
-        <div ref={loadingRef} className="flex justify-center py-8">
-          <div className="animate-pulse flex space-x-4">
-            <div className="h-3 w-3 bg-gray-300 rounded-full"></div>
-            <div className="h-3 w-3 bg-gray-300 rounded-full"></div>
-            <div className="h-3 w-3 bg-gray-300 rounded-full"></div>
-          </div>
-        </div>
-      )}
-
-      {/* No results message when filtering returns empty */}
+      {/* No results message */}
       {images.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-portfolio-muted text-lg">No images found in this category.</p>
-          <p className="text-portfolio-muted mt-2">Try selecting a different filter.</p>
+          <p className="text-gray-500 text-lg">No images found.</p>
         </div>
       )}
 
-      {/* Enhanced lightbox with preloading and smooth transitions */}
-      <Dialog open={isLightboxOpen} onOpenChange={closeLightbox}>
+      {/* Lightbox */}
+      <Dialog open={!!selectedImage} onOpenChange={closeLightbox}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-none">
           {selectedImage && (
             <div className="flex flex-col h-full relative">
@@ -324,8 +189,6 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
                   src={optimizeImageUrl(selectedImage.src, 1600, 90)}
                   alt={selectedImage.alt}
                   className="max-h-full max-w-full object-contain"
-                  loading="eager"
-                  fetchpriority="high"
                 />
                 
                 <button 
@@ -362,5 +225,4 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   );
 };
 
-// Memoize to prevent unnecessary re-renders
 export default memo(ImageGallery);
