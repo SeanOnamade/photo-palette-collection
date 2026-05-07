@@ -113,10 +113,10 @@ const PhotographyPortfolio = () => {
       category: "Sports"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510026.jpg",
-      aspectRatio: 1.508,
-      alt: "Two friends smiling at the camera",
-      title: "Sam and Tobenna",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510019.jpg",
+      aspectRatio: 0.663,
+      alt: "Close-up of a bronze mannequin head with number etched on the forehead",
+      title: "Bronze",
       category: "Portrait"
     },
     {
@@ -591,10 +591,10 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510019.jpg",
-      aspectRatio: 0.663,
-      alt: "Close-up of a bronze mannequin head with number etched on the forehead",
-      title: "Bronze",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510026.jpg",
+      aspectRatio: 1.508,
+      alt: "Two friends smiling at the camera",
+      title: "Sam and Tobenna",
       category: "Portrait"
     },
     {
