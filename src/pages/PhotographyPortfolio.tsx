@@ -283,11 +283,11 @@ const PhotographyPortfolio = () => {
       category: "Events"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1778119549/portfolio/IMG_2149.jpg",
-      aspectRatio: 1.5,
-      alt: "Jed on his bike",
-      title: "Jed",
-      category: "Misc."
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510021.jpg",
+      aspectRatio: 0.663,
+      alt: "Golden mannequin bust against a red wall with blue window light",
+      title: "The Studio",
+      category: "Portrait"
     },
     {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510029.jpg",
@@ -689,11 +689,11 @@ const PhotographyPortfolio = () => {
       category: "Landscape"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510021.jpg",
-      aspectRatio: 0.663,
-      alt: "Golden mannequin bust against a red wall with blue window light",
-      title: "The Studio",
-      category: "Portrait"
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1778119549/portfolio/IMG_2149.jpg",
+      aspectRatio: 1.5,
+      alt: "Jed on his bike",
+      title: "Jed",
+      category: "Misc."
     },
     {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/Portfolio-14.jpg",
