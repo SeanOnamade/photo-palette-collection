@@ -55,11 +55,11 @@ const PhotographyPortfolio = () => {
       category: "Urban"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031520029.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510029.jpg",
       aspectRatio: 1.508,
-      alt: "Portrait of a man sitting in a lounge with purple neon lighting",
-      title: "What Happens In Vegas",
-      category: "Portrait"
+      alt: "Silhouette of a person reaching into a fridge bathed in blue light",
+      title: "Midnight Snack",
+      category: "Fun"
     },
     {
       // src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/Batch1--7.jpg",
@@ -290,11 +290,11 @@ const PhotographyPortfolio = () => {
       category: "Portrait"
     },
     {
-      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031510029.jpg",
+      src: "https://res.cloudinary.com/dnhzt8ver/image/upload/portfolio/000031520029.jpg",
       aspectRatio: 1.508,
-      alt: "Silhouette of a person reaching into a fridge bathed in blue light",
-      title: "Midnight Snack",
-      category: "Fun"
+      alt: "Portrait of a man sitting in a lounge with purple neon lighting",
+      title: "What Happens In Vegas",
+      category: "Portrait"
     },
     {
       src: "https://res.cloudinary.com/dnhzt8ver/image/upload/v1778119630/portfolio/IMG_9921.jpg",
