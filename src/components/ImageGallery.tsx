@@ -6,6 +6,7 @@ import { optimizeImageUrl } from "@/lib/utils";
 
 interface Image {
   src: string;
+  aspectRatio?: number; // width / height — used by shortest-column-first masonry
   alt: string;
   title?: string;
   category?: string;
@@ -19,8 +20,9 @@ interface ImageGalleryProps {
 const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [lightboxLoading, setLightboxLoading] = useState(false);
   const [columnCount, setColumnCount] = useState(columns);
-  const [visibleCount, setVisibleCount] = useState(24); // Reduced to 24 for smoother scrolling
+  const [visibleCount, setVisibleCount] = useState(12);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Adjust columns based on viewport width
@@ -52,13 +54,12 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          // Load 20 images at a time (reduced from 30)
-          setVisibleCount(prev => Math.min(prev + 20, images.length));
+          setVisibleCount(prev => Math.min(prev + 12, images.length));
         }
       },
       { 
-        rootMargin: '600px', // Reduced from 800px to prevent premature loading
-        threshold: 0.01 // Only trigger when actually near
+        rootMargin: '200px', // Reduced: don't aggressively pre-fetch huge images
+        threshold: 0.01
       }
     );
 
@@ -69,29 +70,35 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return () => observer.disconnect();
   }, [visibleCount, images.length]);
 
-  // Preload first batch of images for instant display
+  // Preload the first 4 critical images — use the optimized Cloudinary thumbnail URL,
+  // not the raw src, to avoid preloading 35 MB local files
   useEffect(() => {
     if (images.length === 0) return;
-    
-    // Preload only first 4 critical images (reduced from 8)
+
     const criticalImages = images.slice(0, 4);
-    criticalImages.forEach((img, index) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = img.src;
-      link.fetchPriority = 'high';
+    const links: HTMLLinkElement[] = criticalImages.map((img) => {
+      const optimizedHref = img.src.includes("cloudinary.com")
+        ? img.src.replace("/upload/", "/upload/w_700,q_65,f_auto/")
+        : img.src;
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = optimizedHref;
+      link.fetchPriority = "high";
       document.head.appendChild(link);
+      return link;
     });
-    
+
     return () => {
-      // Cleanup preload links when component unmounts
-      document.querySelectorAll('link[rel="preload"][as="image"]').forEach(link => {
-        if (criticalImages.some(img => img.src === link.getAttribute('href'))) {
-          link.remove();
-        }
-      });
+      links.forEach((link) => link.remove());
     };
+  }, [images]);
+
+  // Pre-compute index map once so per-card lookup is O(1) instead of O(n)
+  const srcToIndex = useMemo(() => {
+    const map = new Map<string, number>();
+    images.forEach((img, i) => map.set(img.src, i));
+    return map;
   }, [images]);
 
   // Only show visible images for better initial load
@@ -99,38 +106,62 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
     return images.slice(0, visibleCount);
   }, [images, visibleCount]);
 
-  // Simple masonry layout - distribute visible images evenly across columns
+  // Shortest-column-first masonry: each image goes to the column with the least
+  // accumulated height so far. Relative height = 1 / aspectRatio (all columns
+  // share the same width). Falls back to 1.0 (square) when ratio is unknown.
   const columnizedImages = useMemo(() => {
     const cols: Image[][] = Array.from({ length: columnCount }, () => []);
-    
-    // Simple round-robin distribution
-    visibleImages.forEach((image, index) => {
-      cols[index % columnCount].push(image);
-    });
-    
+    const heights = new Array<number>(columnCount).fill(0);
+
+    for (const image of visibleImages) {
+      const shortest = heights.indexOf(Math.min(...heights));
+      cols[shortest].push(image);
+      heights[shortest] += 1 / (image.aspectRatio ?? 1.0);
+    }
+
     return cols;
   }, [visibleImages, columnCount]);
+
+  // Preload a Cloudinary image at lightbox resolution into the browser cache
+  const preloadLightboxImage = useCallback((image: Image) => {
+    const src = image.src.includes("cloudinary.com")
+      ? image.src.replace("/upload/", "/upload/w_1920,q_85,f_auto/")
+      : image.src;
+    const img = new window.Image();
+    img.src = src;
+  }, []);
 
   const openLightbox = useCallback((image: Image, index: number) => {
     setSelectedImage(image);
     setSelectedIndex(index);
-    document.body.style.overflow = 'hidden';
-  }, []);
+    setLightboxLoading(true);
+    document.body.style.overflow = "hidden";
+    // Preload neighbours immediately
+    if (images[index + 1]) preloadLightboxImage(images[index + 1]);
+    if (images[index - 1]) preloadLightboxImage(images[index - 1]);
+  }, [images, preloadLightboxImage]);
 
   const closeLightbox = useCallback(() => {
     setSelectedImage(null);
     setSelectedIndex(-1);
-    document.body.style.overflow = '';
+    setLightboxLoading(false);
+    document.body.style.overflow = "";
   }, []);
 
-  const navigateImage = useCallback((direction: 'next' | 'prev') => {
-    const newIndex = direction === 'next' 
+  const navigateImage = useCallback((direction: "next" | "prev") => {
+    const newIndex = direction === "next"
       ? (selectedIndex + 1) % images.length
       : (selectedIndex - 1 + images.length) % images.length;
-    
+
     setSelectedImage(images[newIndex]);
     setSelectedIndex(newIndex);
-  }, [selectedIndex, images]);
+    setLightboxLoading(true);
+    // Preload the image after the one we're navigating to
+    const lookaheadIndex = direction === "next"
+      ? (newIndex + 1) % images.length
+      : (newIndex - 1 + images.length) % images.length;
+    preloadLightboxImage(images[lookaheadIndex]);
+  }, [selectedIndex, images, preloadLightboxImage]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -161,8 +192,7 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
               className="flex-1 flex flex-col gap-4"
             >
               {column.map((image, imageIndex) => {
-                const globalIndex = images.findIndex(img => img.src === image.src);
-                // Mark first 4 images as priority for instant loading
+                const globalIndex = srcToIndex.get(image.src) ?? imageIndex;
                 const isPriority = globalIndex < 4;
                 return (
                   <ImageCard
@@ -205,32 +235,36 @@ const ImageGallery = ({ images, columns = 3 }: ImageGalleryProps) => {
               </DialogClose>
               
               <div className="relative h-[80vh] w-full flex items-center justify-center">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateImage('prev');
-                  }}
-                  className="absolute left-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigateImage("prev"); }}
+                  className="absolute left-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black transition-colors"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
-                
+
+                {/* Spinner shown while next image is loading */}
+                {lightboxLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="w-10 h-10 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
+
                 <img
-                  src={selectedImage.src.includes('cloudinary.com') 
-                    ? selectedImage.src.replace('/upload/', '/upload/w_1920,q_85,f_auto/')
+                  key={selectedImage.src}
+                  src={selectedImage.src.includes("cloudinary.com")
+                    ? selectedImage.src.replace("/upload/", "/upload/w_1920,q_85,f_auto/")
                     : selectedImage.src
                   }
                   alt={selectedImage.alt}
-                  className="max-h-full max-w-full object-contain"
+                  onLoad={() => setLightboxLoading(false)}
+                  className="max-h-full max-w-full object-contain transition-opacity duration-300"
+                  style={{ opacity: lightboxLoading ? 0 : 1 }}
                 />
-                
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateImage('next');
-                  }}
-                  className="absolute right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black hover:text-white transition-colors"
+
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigateImage("next"); }}
+                  className="absolute right-2 z-10 bg-black/50 rounded-full p-2 text-white hover:bg-black transition-colors"
                   aria-label="Next image"
                 >
                   <ChevronRight className="h-6 w-6" />

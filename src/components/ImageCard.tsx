@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from "react";
+import { memo, useState } from "react";
 
 interface ImageCardProps {
   src: string;
@@ -6,62 +6,68 @@ interface ImageCardProps {
   title?: string;
   category?: string;
   onClick?: () => void;
-  priority?: boolean; // For above-the-fold images
+  priority?: boolean;
 }
 
+const isCloudinary = (url: string) => url.includes("cloudinary.com");
+
 const ImageCard = memo(({ src, alt, title, category, onClick, priority = false }: ImageCardProps) => {
-  const [isSharpLoaded, setIsSharpLoaded] = useState(false);
-  
-  // Generate ultra-tiny blur placeholder (20px, loads in ~100ms)
-  const blurSrc = src.includes('cloudinary.com')
-    ? src.replace('/upload/', '/upload/w_20,h_20,q_10,e_blur:1000,f_auto/')
-    : src;
-  
-  // Generate optimized thumbnail (700px for better performance)
-  const sharpSrc = src.includes('cloudinary.com')
-    ? src.replace('/upload/', '/upload/w_700,q_65,f_auto/') // Reduced quality & size for smoother scrolling
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const cloudinary = isCloudinary(src);
+
+  // Tiny blur placeholder only for Cloudinary images (20px, ~1KB)
+  const blurSrc = cloudinary
+    ? src.replace("/upload/", "/upload/w_20,h_20,q_10,e_blur:1000,f_auto/")
+    : null;
+
+  // Optimized sharp version: Cloudinary gets resized thumbnail, local gets the file as-is
+  const sharpSrc = cloudinary
+    ? src.replace("/upload/", "/upload/w_700,q_65,f_auto/")
     : src;
 
   return (
     <div
       className="group relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90"
       onClick={onClick}
-      style={{ 
-        willChange: 'opacity',
-        contain: 'layout style paint' // Performance hint for browser
+      style={{
+        willChange: "opacity",
+        contain: "layout style paint",
+        // Dark bg shows while image is downloading (especially for large local files)
+        backgroundColor: "#1a1a1a",
       }}
     >
-      {/* Blur placeholder - loads instantly */}
-      <img
-        src={blurSrc}
-        alt=""
-        aria-hidden="true"
-        className="w-full h-auto object-cover absolute inset-0"
-        style={{
-          filter: 'blur(20px)',
-          transform: 'scale(1.1)',
-          opacity: isSharpLoaded ? 0 : 1,
-          transition: 'opacity 0.3s ease-out',
-          pointerEvents: 'none' // Prevent interaction with blur layer
-        }}
-      />
-      
-      {/* Sharp image - fades in when ready */}
+      {/* Cloudinary-only: tiny blurred placeholder fades out when sharp loads */}
+      {blurSrc && !isLoaded && (
+        <img
+          src={blurSrc}
+          alt=""
+          aria-hidden="true"
+          className="w-full h-auto object-cover"
+          style={{
+            filter: "blur(20px)",
+            transform: "scale(1.1)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Main image */}
       <img
         src={sharpSrc}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : "auto"}
-        onLoad={() => setIsSharpLoaded(true)}
-        className="w-full h-auto object-cover relative"
+        onLoad={() => setIsLoaded(true)}
+        className="w-full h-auto object-cover"
         style={{
-          opacity: isSharpLoaded ? 1 : 0,
-          transition: 'opacity 0.5s ease-out'
+          display: "block",
+          opacity: isLoaded ? 1 : cloudinary ? 0 : 1,
+          transition: "opacity 0.5s ease-out",
         }}
       />
-      
-      {/* Simplified overlay - only shows on hover */}
+
       {(title || category) && (
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-4">
           <div>
